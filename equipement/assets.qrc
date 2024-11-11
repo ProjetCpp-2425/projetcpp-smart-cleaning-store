@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/new/icons">
+        <file>iconsss/recherche.png</file>
+        <file>iconsss/search-interface-symbol.png</file>
+    </qresource>
+</RCC>
