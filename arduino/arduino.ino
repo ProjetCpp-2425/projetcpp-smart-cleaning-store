@@ -1,12 +1,11 @@
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal.h>
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);  // Adjust pins based on your setup
 
 void setup() {
   Serial.begin(9600); 
-  lcd.begin();  
-  lcd.backlight();
+  lcd.begin(16, 2);  
+
   lcd.setCursor(0, 0); 
   lcd.print("Waiting for data"); 
   lcd.setCursor(0, 1); 
