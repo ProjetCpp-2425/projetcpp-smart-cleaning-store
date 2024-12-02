@@ -13,14 +13,12 @@
 #include <QJsonDocument>
 #include <QInputDialog>
 #include <QRegularExpression>
-#include <QMap>
-#include <QString>
-#include <QWidget>
-#include <QPrinter>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
+#include <QtCharts/QValueAxis>
 #include <QVBoxLayout>
-#include <QDialog>
-#include <QSqlQueryModel>
-#include <QProgressBar>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -95,12 +93,18 @@ void MainWindow::on_btn_recherche_clicked() {
     QString idRecherche = ui->idRecherche->text();
 
     if (idRecherche.isEmpty()) {
-        qDebug() << "Veuillez entrer un ID pour la recherche.";
+        QMessageBox::warning(this, "Erreur", "Veuillez entrer un ID pour la recherche.");
         return;
     }
 
     service s(0, "", "", 0.0, QDate(), QDate(), "", "", "");
     s.rechercherParId(ui->tableRecherche, idRecherche);
+
+    // Check if any rows were added to the table
+    if (ui->tableRecherche->rowCount() == 0) {
+        QMessageBox::information(this, "Aucun résultat", "Aucun service trouvé pour l'ID donné.");
+        return;
+    }
 
     // Resize columns to fit the content
     ui->tableRecherche->resizeColumnsToContents();
@@ -123,6 +127,7 @@ void MainWindow::on_btn_recherche_clicked() {
     // Set the size policy to expanding for both horizontal and vertical directions
     ui->table_service->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
+
 
 void MainWindow::on_btn_pdf_clicked() {
     // Check if the database is open
@@ -307,9 +312,9 @@ void MainWindow::on_btn_aff_clicked() {
     ui->table_service->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     if (ui->comboBox->currentIndex() == 1) {
-        ui->table_service->sortItems(1, Qt::AscendingOrder);
+        ui->table_service->sortItems(0, Qt::AscendingOrder);
     } else if (ui->comboBox->currentIndex() == 2) {
-        ui->table_service->sortItems(1, Qt::DescendingOrder);
+        ui->table_service->sortItems(0, Qt::DescendingOrder);
     }
 }
 
@@ -399,7 +404,7 @@ void MainWindow::on_btn_statut_clicked() {
     QMap<QString, int> statutCounts;
 
     while (query.next()) {
-        QString statut = query.value("STATUT").toString();
+        QString statut = query.value(0).toString(); // Change to column index for STATUT
         int count = query.value(1).toInt();
         statutCounts[statut] = count;
     }
@@ -410,38 +415,39 @@ void MainWindow::on_btn_statut_clicked() {
         return;
     }
 
-    // Create a widget to hold the content
-    QWidget *chartWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout(chartWidget);
-
-    // Determine the maximum count to scale the progress bars
-    int maxCount = *std::max_element(statutCounts.begin(), statutCounts.end());
-
-    // Add labels and progress bars to the layout
-    for (auto it = statutCounts.begin(); it != statutCounts.end(); ++it) {
-        // Create a label for each statut
-        QLabel *label = new QLabel(it.key() + ": " + QString::number(it.value()));
-        layout->addWidget(label);
-
-        // Create a progress bar to represent the count
-        QProgressBar *progressBar = new QProgressBar();
-        progressBar->setMaximum(maxCount);
-        progressBar->setValue(it.value());
-        layout->addWidget(progressBar);
+    // Clear the existing layout and widgets in chartwidget
+    QLayout *layout = ui->chartwidget->layout();
+    if (layout) {
+        QLayoutItem *item;
+        while ((item = layout->takeAt(0)) != nullptr) {
+            delete item->widget(); // Delete widget from layout
+            delete item; // Delete layout item
+        }
+        delete layout;
     }
 
-    // Set the layout for the chart widget
-    chartWidget->setLayout(layout);
+    // Create a chart widget
+    QChartView *chartView = new QChartView();
+    QChart *chart = new QChart();
+    chartView->setChart(chart);
 
-    // Show the chart widget in a dialog
-    QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Statistiques des Services par Statut");
-    QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
-    dialogLayout->addWidget(chartWidget);
-    dialog->setLayout(dialogLayout);
-    dialog->exec();
+    // Add a bar series to the chart
+    QBarSeries *series = new QBarSeries();
+    for (auto it = statutCounts.begin(); it != statutCounts.end(); ++it) {
+        QBarSet *set = new QBarSet(it.key());
+        *set << it.value();
+        series->append(set);
+    }
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+    chart->setTitle("Statistiques des Services par Statut");
+
+    // Set the chart view as the central widget of the chartWidget
+    QVBoxLayout *newLayout = new QVBoxLayout();
+    newLayout->addWidget(chartView);
+    ui->chartwidget->setLayout(newLayout);
 }
-
 
 MainWindow::~MainWindow() {
     delete ui;

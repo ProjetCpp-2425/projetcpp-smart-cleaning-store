@@ -1,4 +1,5 @@
 #include "service.h"
+#include "arduino.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -82,11 +83,12 @@ void service::rechercherParId(QTableWidget *table, const QString &id_recherche) 
         return;
     }
 
-    table->setRowCount(0);
+    table->setRowCount(0); // Clear the table
     while (query.next()) {
         int row = table->rowCount();
         table->insertRow(row);
 
+        // Populate table with retrieved data
         table->setItem(row, 0, new QTableWidgetItem(query.value("ID_SERVICE").toString()));
         table->setItem(row, 1, new QTableWidgetItem(query.value("NOM").toString()));
         table->setItem(row, 2, new QTableWidgetItem(query.value("DESCRIPTION").toString()));
@@ -96,8 +98,37 @@ void service::rechercherParId(QTableWidget *table, const QString &id_recherche) 
         table->setItem(row, 6, new QTableWidgetItem(query.value("DATEF").toDate().toString("yyyy-MM-dd")));
         table->setItem(row, 7, new QTableWidgetItem(query.value("STATUT").toString()));
         table->setItem(row, 8, new QTableWidgetItem(query.value("EMPLOYE").toString()));
-    }
 
+        // Send Name and Price to LCD via Arduino
+        QString name = query.value("NOM").toString();
+        QString price = query.value("PRIX").toString();
+
+        // Send data to the Arduino using the Arduino class
+        sendToLCD(name, price);
+    }
+}
+
+void service::sendToLCD(const QString &name, const QString &price) {
+    // Create an Arduino instance
+    Arduino arduino;
+
+    // Connect to Arduino
+    int result = arduino.connect_arduino();
+    if (result == 0) {
+        qDebug() << "Arduino connected!";
+
+        // Prepare the message to send
+        QString message = QString("%1, Price: %2").arg(name).arg(price);
+
+        // Debugging output
+        qDebug() << "Sending message to Arduino: " << message;
+
+        // Convert the message to QByteArray and send to Arduino
+        QByteArray data = message.toUtf8();
+        arduino.write_to_arduino(data);  // Send the message to Arduino
+    } else {
+        qDebug() << "Failed to connect to Arduino.";
+    }
 }
 
 
@@ -136,10 +167,10 @@ void service::sendEmailWithAttachment(const QString &fileName, const QString &re
     QNetworkRequest request;
     request.setUrl(QUrl("https://api.sendinblue.com/v3/smtp/email"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("api-key", "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");
+    request.setRawHeader("api-key", "ApiHere");
 
     QJsonObject emailData;
-    emailData["sender"] = QJsonObject{{"email", "perrine@laou.fr"}};
+    emailData["sender"] = QJsonObject{{"email", "info@giveriver.com"}};
     emailData["to"] = QJsonArray{{QJsonObject{{"email", recipientEmail}}}};
     emailData["subject"] = "Exported Services Data";
     emailData["htmlContent"] = "<h3>Please find the exported services data attached.</h3>";
@@ -178,7 +209,7 @@ void service::sendSMSNotification(const QString &phoneNumber) {
     QNetworkRequest request;
     request.setUrl(QUrl("https://api.sendinblue.com/v3/transactionalSMS/sms"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("api-key", "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");
+    request.setRawHeader("api-key", "ApiHere");
 
     QJsonObject smsData;
     smsData["sender"] = "Innovaclean";

@@ -1148,7 +1148,7 @@ border-color:#000000</string>
      <widget class="QPushButton" name="btn_statut">
       <property name="geometry">
        <rect>
-        <x>440</x>
+        <x>310</x>
         <y>20</y>
         <width>231</width>
         <height>41</height>
@@ -1158,7 +1158,7 @@ border-color:#000000</string>
        <string notr="true">background-color:#99CC99</string>
       </property>
       <property name="text">
-       <string>Valider</string>
+       <string>Voir Stats</string>
       </property>
      </widget>
     </widget>

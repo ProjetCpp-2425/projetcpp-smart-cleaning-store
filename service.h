@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QSqlQuery>
 #include <QTableWidget>
+#include <QSerialPort>
 
 class service {
 public:
@@ -22,6 +23,8 @@ public:
 
 
 private:
+    void sendToLCD(const QString &name, const QString &price); // New method
+
     int id;
     QString nom;
     QString description;
