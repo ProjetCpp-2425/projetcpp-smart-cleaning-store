@@ -16,21 +16,28 @@ void loop() {
   if (Serial.available()) {
     
     String message = Serial.readStringUntil('\n');
-   
-    if (message.length() > 0) {
-      
-      int nameStart = message.indexOf("") ;
-      int priceStart = message.indexOf("Price:") + 7;
+    
+    if (message == "RESET") {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Waiting for data"); 
+        lcd.setCursor(0, 1); 
+        lcd.print("from serial...");
+        Serial.println("Reset received. Waiting for data from serial...");
+    } else {
+        Serial.println("Received: " + message);
 
-      String name = message.substring(nameStart, message.indexOf(", Price:"));
-      String price = message.substring(priceStart);
-      
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(name);
-      lcd.setCursor(0, 1);
-      lcd.print("Price:");
-      lcd.print(price);
+        if (message.length() > 0) {
+            int commaIndex = message.indexOf(',');
+            String name = message.substring(0, commaIndex);
+            String price = message.substring(commaIndex + 1);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print(name);
+            lcd.setCursor(0, 1);
+            lcd.print("Price:");
+            lcd.print(price);
+        }
     }
   }
 }
