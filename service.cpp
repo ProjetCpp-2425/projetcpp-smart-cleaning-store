@@ -109,28 +109,25 @@ void service::rechercherParId(QTableWidget *table, const QString &id_recherche) 
 }
 
 void service::sendToLCD(const QString &name, const QString &price) {
-    // Create an Arduino instance
-    Arduino arduino;
+    static Arduino arduino; // Static to maintain connection
 
-    // Connect to Arduino
-    int result = arduino.connect_arduino();
-    if (result == 0) {
-        qDebug() << "Arduino connected!";
-
-        // Prepare the message to send
-        QString message = QString("%1, Price: %2").arg(name).arg(price);
-
-        // Debugging output
-        qDebug() << "Sending message to Arduino: " << message;
-
-        // Convert the message to QByteArray and send to Arduino
-        QByteArray data = message.toUtf8();
-        arduino.write_to_arduino(data);  // Send the message to Arduino
-    } else {
+    if (!arduino.getserial()->isOpen() && arduino.connect_arduino() != 0) {
         qDebug() << "Failed to connect to Arduino.";
+        return;
     }
-}
 
+    QString message;
+    if (name.isEmpty() || price.isEmpty()) {
+        message = "RESET\n"; // Reset message
+    } else {
+        message = QString("%1,%2\n").arg(name).arg(price);
+    }
+
+    QByteArray data = message.toUtf8();
+
+    qDebug() << "Sending message to Arduino: " << message;
+    arduino.write_to_arduino(data);
+}
 
 bool service::supprimer(int id) {
     QSqlQuery query;

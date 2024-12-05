@@ -94,37 +94,35 @@ void MainWindow::on_btn_recherche_clicked() {
 
     if (idRecherche.isEmpty()) {
         QMessageBox::warning(this, "Erreur", "Veuillez entrer un ID pour la recherche.");
+        service s(0, "", "", 0.0, QDate(), QDate(), "", "", "");
+        s.sendToLCD("", "");
         return;
     }
 
     service s(0, "", "", 0.0, QDate(), QDate(), "", "", "");
     s.rechercherParId(ui->tableRecherche, idRecherche);
 
-    // Check if any rows were added to the table
     if (ui->tableRecherche->rowCount() == 0) {
         QMessageBox::information(this, "Aucun résultat", "Aucun service trouvé pour l'ID donné.");
+
+        s.sendToLCD("", "");
         return;
     }
 
-    // Resize columns to fit the content
     ui->tableRecherche->resizeColumnsToContents();
 
-    // Apply the customizations for table_service
     ui->table_service->resizeColumnsToContents();
 
-    // Set the header resize mode to stretch for all columns
     QHeaderView* header = ui->tableRecherche->horizontalHeader();
     for (int i = 0; i < ui->tableRecherche->columnCount(); ++i) {
         header->setSectionResizeMode(i, QHeaderView::Stretch);
     }
 
-    // Set a custom stylesheet for table items
     ui->table_service->setStyleSheet("QTableWidget::item {"
                                     "background-color: #E5F3FD;"
                                     "border: 0px solid black;"
                                     "}");
 
-    // Set the size policy to expanding for both horizontal and vertical directions
     ui->table_service->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 

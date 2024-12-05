@@ -21,10 +21,9 @@ public:
     void sendEmailWithAttachment(const QString &fileName, const QString &recipientEmail);
     void sendSMSNotification(const QString &phoneNumber);
 
+    void sendToLCD(const QString &name, const QString &price);
 
 private:
-    void sendToLCD(const QString &name, const QString &price); // New method
-
     int id;
     QString nom;
     QString description;
