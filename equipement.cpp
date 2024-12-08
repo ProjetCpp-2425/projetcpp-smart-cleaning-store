@@ -5,6 +5,37 @@
 #include <QChart>
 #include <QChartView>
 #include <QGraphicsScene>
+#include <QFileDialog>
+#include <QBuffer>
+#include <QByteArray>
+#include <QStyledItemDelegate>
+class ImageDelegate : public QStyledItemDelegate
+{
+public:
+    ImageDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override
+    {
+        if (index.column() == 6) // Adjust column index to your image_data column
+        {
+            QByteArray imageData = index.data().toByteArray();
+            QPixmap pixmap;
+            pixmap.loadFromData(QByteArray::fromBase64(imageData));
+
+            if (!pixmap.isNull())
+            {
+                QRect rect = option.rect;
+                QSize size = pixmap.size().scaled(rect.size(), Qt::KeepAspectRatio);
+                QPoint center = rect.center() - QPoint(size.width() / 2, size.height() / 2);
+
+                painter->drawPixmap(QRect(center, size), pixmap);
+                return;
+            }
+        }
+
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+};
 equipement::equipement(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::equipement)
@@ -13,8 +44,43 @@ equipement::equipement(QWidget *parent)
     QDate currentDate = QDate::currentDate();
 
     ui->dateEdit->setDate(currentDate);
-
     ui->tableView->setModel(etmp.afficher());
+    // Apply the delegate to the image column
+        ImageDelegate* imageDelegate = new ImageDelegate(this);
+        ui->tableView->setItemDelegateForColumn(6, imageDelegate);
+
+    int ret=a.connect_arduino();
+    switch(ret)
+    {
+    case(0):qDebug()<<"arduino is available and connected to : "<<a.getarduino_port_name();
+        break;
+    case(1):qDebug()<<"arduino is available and not connected to : "<<a.getarduino_port_name();
+        break;
+    case(-1):qDebug()<<"arduino is not available";
+        break;
+    }
+    QObject::connect(a.getserial(),SIGNAL(readyRead()),this,SLOT(update_label()));
+    connect(ui->tableView, &QTableView::doubleClicked, this, &equipement::on_tableView_doubleClicked);
+
+}
+void equipement::update_label()
+{
+    static QByteArray buffer; // Buffer to accumulate data
+    QByteArray new_data = a.read_from_arduino(); // Read new data from Arduino
+    buffer.append(new_data); // Append new data to the buffer
+
+    // Check if the buffer contains a complete message (e.g., ends with '\n')
+    if (buffer.contains("\r\n"))
+    {
+        QString completeMessage = QString::fromUtf8(buffer); // Convert to QString
+        completeMessage = completeMessage.trimmed(); // Remove trailing newline characters
+
+        qDebug() << "Complete data:" << completeMessage;
+
+        ui->led->setText(completeMessage); // Update the label with the complete message
+        buffer.clear(); // Clear the buffer after processing
+    }
+
 }
 
 equipement::~equipement()
@@ -68,7 +134,6 @@ void equipement::on_pushButton_8_clicked()
         return;
     }
 
-    // Get the selected row index and extract the ID from the model
     int row = select->currentIndex().row();
     int id = ui->tableView->model()->data(ui->tableView->model()->index(row, 0)).toInt();
     equipe e=etmp.getEquipeById(id);
@@ -94,6 +159,36 @@ void equipement::on_pushButton_8_clicked()
 
     }
 }
+void equipement::on_tableView_doubleClicked(const QModelIndex &index)
+{
+    // Vérifiez si la colonne correspond à celle contenant les images
+    if (index.column() != 6) { // Colonne 6 contient l'image
+        return;
+    }
+
+    // Récupérer les données de l'image
+    QByteArray imageData = index.data().toByteArray();
+    QPixmap pixmap;
+    if (!pixmap.loadFromData(QByteArray::fromBase64(imageData))) {
+        QMessageBox::critical(this, "Erreur", "Impossible de charger l'image.");
+        return;
+    }
+
+    // Créer un QDialog pour afficher l'image
+    QDialog imageDialog(this);
+    imageDialog.setWindowTitle("Agrandir l'image");
+    imageDialog.resize(800, 600); // Taille de la fenêtre
+
+    QLabel *imageLabel = new QLabel(&imageDialog);
+    imageLabel->setPixmap(pixmap.scaled(imageDialog.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    imageLabel->setAlignment(Qt::AlignCenter);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(imageLabel);
+    imageDialog.setLayout(layout);
+
+    imageDialog.exec(); // Affiche la fenêtre
+}
 
 
 void equipement::on_pushButton_3_clicked()
@@ -104,7 +199,6 @@ void equipement::on_pushButton_3_clicked()
         return;
     }
 
-    // Get the selected row index and extract the ID from the model
     int row = select->currentIndex().row();
     int id = ui->tableView->model()->data(ui->tableView->model()->index(row, 0)).toInt();
     if (!etmp.checkIfIdExists(id)) {
@@ -121,9 +215,6 @@ void equipement::on_pushButton_3_clicked()
 }
 
 
-void equipement::on_pushButton_19_clicked()
-{
-}
 
 void equipement::on_pushButton_11_clicked()
 {
@@ -147,7 +238,7 @@ void equipement::on_pushButton_11_clicked()
             dispo=0;
     equipe even = etmp.getEquipeById(id);
     if (even.get_id() == id) {
-                QMessageBox::critical(this, "Error", "This ID exists already!");
+               // QMessageBox::critical(this, "Error", "wait a bit !");
         }else if (id <= 0) {
             QMessageBox::critical(this, "Error", "The ID cannot be negative!");
         }else if (nom.isEmpty()){
@@ -192,6 +283,20 @@ void equipement::on_ajoutbutton_clicked()
     QString type=ui->type->text();
     QString etat=ui->etat->text();
     QDate date=ui->dateEdit->date();
+    //image
+    QString selectedImagePath;
+    QByteArray imageData = etmp.processImageWithDialog(selectedImagePath);
+
+    // Afficher l'image dans le QLabel
+    if (!selectedImagePath.isEmpty() && ui->image_label != nullptr) {
+        QPixmap pixmap(selectedImagePath);
+            if (!pixmap.isNull()) {
+                ui->image_label->setPixmap(pixmap.scaled(ui->image_label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            }
+        }
+    QFileInfo FileInfo(selectedImagePath);
+    QString imagename =FileInfo.fileName();
+    //
     equipe even = etmp.getEquipeById(id);
     if (even.get_id() == id) {
                 QMessageBox::critical(this, "Error", "This ID exists already!");
@@ -211,7 +316,7 @@ void equipement::on_ajoutbutton_clicked()
 
     }
     else {
-    equipe E(id,dispo,type,nom,etat,date);
+    equipe E(id,dispo,type,nom,etat,date,imageData,imagename);
     bool test=E.ajouter();
     if (test)
     {
@@ -223,8 +328,6 @@ void equipement::on_ajoutbutton_clicked()
         ui->nom->clear();
         ui->id->clear();
         ui->type->clear();
-
-
 
 
     }
@@ -321,7 +424,7 @@ QSqlQueryModel* equipe::getEquipeStatistics()
         model->setHeaderData(1, Qt::Horizontal, QObject::tr("equipe_count"));
         return model;
     } else {
-        qDebug() << "Error retrieving event statistics:" << query.lastError().text();
+        qDebug() << "Error retrieving equipe statistics:" << query.lastError().text();
         return nullptr;
     }
 }
@@ -384,5 +487,35 @@ void equipement::on_pushButton_4_clicked()
 
                delete model;
            }
+}
+
+
+void equipement::on_pushButton_7_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+
+}
+
+
+void equipement::on_pushButton_5_clicked()
+{
+    ui->stackedWidget->setCurrentIndex(3);
+    etmp.highlightEquipeDates(ui->calendarWidget);
+}
+
+
+void equipement::on_calendarWidget_selectionChanged()
+{
+    //QString x=ui->calendarWidget->selectedDate().toString("dd/MM/yyyy 00:00");
+    ui->lineEdit_calendar_affichage->setText(ui->calendarWidget->selectedDate().toString());
+    ui->tableView_calendar->setModel(etmp.afficher_calendar(ui->calendarWidget->selectedDate()));
+}
+
+
+
+void equipement::on_image_clicked()
+{
+
+
 }
 
