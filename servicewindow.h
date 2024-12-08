@@ -1,19 +1,19 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SERVICEWINDOW_H
+#define SERVICEWINDOW_H
 
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui { class ServiceWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class ServiceWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ServiceWindow(QWidget *parent = nullptr);
+    ~ServiceWindow();
 
 private slots:
     void on_btn_ajt_clicked();
@@ -23,6 +23,6 @@ private slots:
     void on_btn_pdf_clicked();
     void on_btn_statut_clicked();
 private:
-    Ui::MainWindow *ui;
+    Ui::ServiceWindow *ui;
 };
-#endif // MAINWINDOW_H
+#endif // SERVICEWINDOW_H
