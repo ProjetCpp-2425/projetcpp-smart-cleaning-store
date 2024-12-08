@@ -31,7 +31,6 @@ void loop() {
             int commaIndex = message.indexOf(',');
             String name = message.substring(0, commaIndex);
             String price = message.substring(commaIndex + 1);
-
             lcd.clear();
             lcd.setCursor(0, 0);
             lcd.print(name);

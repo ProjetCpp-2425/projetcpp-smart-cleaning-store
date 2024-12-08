@@ -6,14 +6,21 @@ SOURCES  += main.cpp \
             arduino.cpp \
             service.cpp \
             connection.cpp \
-            mainwindow.cpp
+            servicewindow.cpp \
+            clientwindow.cpp \
+            client.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     arduino.h \
     service.h \
-    connection.h
+    connection.h \
+    servicewindow.h \
+    clientwindow.h \
+    client.h
 
-FORMS    += mainwindow.ui
+FORMS    += \
+    servicewindow.ui \
+    clientwindow.ui
 
 RESOURCES += \
     Resource.qrc

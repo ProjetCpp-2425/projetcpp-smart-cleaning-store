@@ -1,6 +1,8 @@
-#include "mainwindow.h"
+#include "servicewindow.h"
 #include "service.h"
-#include "./ui_mainwindow.h"
+#include "clientwindow.h"
+#include "./ui_servicewindow.h"
+#include "./ui_clientwindow.h"
 #include <QMessageBox>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -21,14 +23,14 @@
 #include <QVBoxLayout>
 
 
-MainWindow::MainWindow(QWidget *parent)
+ServiceWindow::ServiceWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::ServiceWindow)
 {
     ui->setupUi(this);
 }
 
-void MainWindow::on_btn_ajt_clicked() {
+void ServiceWindow::on_btn_ajt_clicked() {
     int id = ui->id->text().toInt();
     QString nom = ui->nom->text();
     QString description = ui->description->text();
@@ -45,10 +47,8 @@ void MainWindow::on_btn_ajt_clicked() {
         return;
     }
 
-    // Create the service object with the input data
     service s(id, nom, description, prix, date, datef, statut, employe, categorie);
 
-    // Prepare the confirmation message
     QString message = QString("Êtes-vous sûr de vouloir %1 les données suivantes ?\n\n")
                         .arg(s.idExists() ? "mettre à jour" : "ajouter") +
                       QString("ID: %1\nNom: %2\nDescription: %3\nPrix: %4\nCatégorie: %5\nDate Début: %6\nDate Fin: %7\nStatut: %8\nEmployé: %9")
@@ -62,14 +62,12 @@ void MainWindow::on_btn_ajt_clicked() {
                         .arg(statut)
                         .arg(employe);
 
-    // Ask for confirmation
     QMessageBox::StandardButton reply = QMessageBox::question(this,
                                                               "Confirmation",
                                                               message,
                                                               QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
-        // Proceed with adding or updating based on if the ID exists
         if (s.idExists()) {
             if (s.update()) {
                 QMessageBox::information(nullptr, "Succès", "Service mis à jour avec succès.");
@@ -84,12 +82,11 @@ void MainWindow::on_btn_ajt_clicked() {
             }
         }
     } else {
-        // If user clicks No, do nothing
         return;
     }
 }
 
-void MainWindow::on_btn_recherche_clicked() {
+void ServiceWindow::on_btn_recherche_clicked() {
     QString idRecherche = ui->idRecherche->text();
 
     if (idRecherche.isEmpty()) {
@@ -127,42 +124,35 @@ void MainWindow::on_btn_recherche_clicked() {
 }
 
 
-void MainWindow::on_btn_pdf_clicked() {
-    // Check if the database is open
+void ServiceWindow::on_btn_pdf_clicked() {
     QSqlDatabase db = QSqlDatabase::database();
     if (!db.isOpen()) {
         qDebug() << "Database is not open:" << db.lastError().text();
         QMessageBox::critical(this, "Database Error", "Failed to connect to the database.");
         return;
     }
-
-    // Prepare the query to retrieve services
     QSqlQuery query;
     if (!query.prepare("SELECT ID_SERVICE, NOM, DESCRIPTION, PRIX, CATEGORIE, DATED, DATEF, STATUT, EMPLOYE FROM SERVICE")) {
         qDebug() << "Failed to prepare query:" << query.lastError().text();
         QMessageBox::critical(this, "Query Error", "Failed to prepare query: " + query.lastError().text());
         return;
     }
-
-    // Execute the query
     if (!query.exec()) {
         qDebug() << "Query execution failed:" << query.lastError().text();
         QMessageBox::critical(this, "Query Error", "Failed to retrieve service data: " + query.lastError().text());
         return;
     }
 
-    // Ask for file location to save the PDF
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save PDF"), "", tr("PDF Files (*.pdf)"));
     if (fileName.isEmpty()) return;
 
     if (!fileName.endsWith(".pdf", Qt::CaseInsensitive)) {
-        fileName += ".pdf";  // Ensure the file extension is correct
+        fileName += ".pdf";
     }
 
-    // Setup the PDF writer
     QPdfWriter pdfWriter(fileName);
     pdfWriter.setPageSize(QPageSize(QPageSize::A4));
-    pdfWriter.setPageMargins(QMarginsF(40, 40, 40, 40));  // Set margins for better readability
+    pdfWriter.setPageMargins(QMarginsF(40, 40, 40, 40));
 
     QPainter painter(&pdfWriter);
     if (!painter.isActive()) {
@@ -170,18 +160,15 @@ void MainWindow::on_btn_pdf_clicked() {
         return;
     }
 
-    // Write the PDF title
     painter.setPen(Qt::black);
     painter.setFont(QFont("Arial", 20, QFont::Bold));
     int titleHeight = 350;
     painter.drawText(QRect(0, 50, pdfWriter.width(), titleHeight), Qt::AlignCenter, "Services Data Export");
 
-    // Add timestamp for export
     painter.setFont(QFont("Arial", 12));
     painter.drawText(QRect(0, 350 + titleHeight, pdfWriter.width(), 250), Qt::AlignCenter,
                      "Exported on: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 
-    // Write service data
     painter.setFont(QFont("Arial", 10));
     int y = 1500 + titleHeight;  // Starting position for the service data
 
@@ -250,7 +237,7 @@ void MainWindow::on_btn_pdf_clicked() {
 }
 
 
-void MainWindow::on_btn_aff_clicked() {
+void ServiceWindow::on_btn_aff_clicked() {
     int id = ui->id->text().toInt();
     QString nom = ui->nom->text();
     QString description = ui->description->text();
@@ -316,7 +303,7 @@ void MainWindow::on_btn_aff_clicked() {
     }
 }
 
-void MainWindow::on_btn_supprimer_clicked() {
+void ServiceWindow::on_btn_supprimer_clicked() {
     int id = ui->idservice->text().toInt();
 
     QSqlQuery query;
@@ -388,7 +375,7 @@ void MainWindow::on_btn_supprimer_clicked() {
     }
 }
 
-void MainWindow::on_btn_statut_clicked() {
+void ServiceWindow::on_btn_statut_clicked() {
     // Query to get the count of services by statut
     QSqlQuery query;
     query.prepare("SELECT STATUT, COUNT(*) FROM SERVICE GROUP BY STATUT");
@@ -447,8 +434,16 @@ void MainWindow::on_btn_statut_clicked() {
     ui->chartwidget->setLayout(newLayout);
 }
 
-MainWindow::~MainWindow() {
+ServiceWindow::~ServiceWindow() {
     delete ui;
 }
 
+
+
+void ServiceWindow::on_pushButton_7_clicked()
+{
+    clientWindow = new ClientWindow(); // Create a new instance of ClientWindow
+    clientWindow->show();              // Show the ClientWindow
+    this->close();
+}
 
