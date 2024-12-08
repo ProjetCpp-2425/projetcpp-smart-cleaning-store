@@ -55,3 +55,6 @@ DISTFILES += \
     Atelier_Connexion.pro.user \
     Atelier_Connexion.pro.user.a7da24b \
     Atelier_Connexion.pro.user.d567f1b.4.8-pre1
+
+RESOURCES += \
+    img.qrc

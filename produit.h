@@ -28,7 +28,7 @@ public:
     void setIDP(int id){this->IDP=id;}
     // fonctionnalités de base relatives a l'entité produit
     bool ajouter();
-    QSqlQueryModel * afficher();
+    QSqlQueryModel * afficher(QString data, int mode);
     bool supprimer(int IdP);
     bool modifier(int IDP);
     bool rechercher(int IDP);

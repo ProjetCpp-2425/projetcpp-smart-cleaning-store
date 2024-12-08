@@ -10,7 +10,9 @@
 #include <QFileDialog>
 #include "curvewidget.h"
 #include "historique.h"
-
+#include <QFile>
+#include <QTextStream>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -21,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     loadProduitData();
     qDebug() << "Available database drivers: " << QSqlDatabase::drivers();
     // Connexion du bouton "Statistiques" avec la fonction showStatistics
-    connect(ui->pushButton_Statistiques, &QPushButton::clicked, this, &MainWindow::showStatistics);
+    //connect(ui->pushButton_Statistiques, &QPushButton::clicked, this, &MainWindow::showStatistics);
     //////
     serialbuffer="";
 
@@ -69,6 +71,54 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
               }
+
+              QPieSeries *series = new QPieSeries();
+              series->setHoleSize(0.35);
+
+              // Add data to the pie chart
+              QString number = QString::number(10);
+              QString male = "male :%";
+              male += number;
+              QString number2 = QString::number(7);
+              QString female = "female :%";
+              female += number2;
+
+              series->append(male, 7);
+              series->append(female, 8);
+
+              QString number3 = QString::number(15);
+              QString total = "total clients:%";
+              total += number3;
+
+              // Append total data to the pie chart
+              QPieSlice *slice = series->append(total, 100);
+              slice->setExploded();  // Explode the slice
+
+              // Create a chart and set up animations
+              QChart *chart = new QChart();
+              chart->addSeries(series);
+              chart->setAnimationOptions(QChart::SeriesAnimations);
+              chart->setTitle("example");
+
+              // Create a QChartView for the chart
+              QChartView *charview = new QChartView(chart);
+              charview->setRenderHint(QPainter::Antialiasing);
+
+              // Create a container QWidget for the chart view
+              QWidget *chartWidget = new QWidget();    // Create a container widget
+              chartWidget->setLayout(new QHBoxLayout());  // Set a layout for the container widget
+              chartWidget->layout()->addWidget(charview); // Add the chart view to the container widget
+
+              // Add the container widget to the horizontal layout
+              ui->horizontalLayout->addWidget(chartWidget);  // Add the container widget to the layout
+
+
+ui->tabWidget->setTabText(0,"Ajout");
+ui->tabWidget->setTabText(1,"historique");
+ui->tabWidget->setTabText(2,"statistique");
+ui->tabWidget->setTabText(3,"recherche");
+ui->tableView_2->setModel(Etmp.afficher("",0));
+displayProductsFromFile(this);
 }
 
 MainWindow::~MainWindow()
@@ -95,6 +145,7 @@ void MainWindow::on_ajouter_produit_clicked()
     {
         QMessageBox::critical(nullptr, QObject::tr("Erreur"), QObject::tr("Ajout non effectué.\nCliquez sur Annuler pour quitter."), QMessageBox::Cancel);
     }
+    logProductToFile(ui->lineEdit_IDP->text(),ui->lineEdit_NomP->text());
 }
 
 void MainWindow::on_pushButton_6_clicked()
@@ -166,25 +217,17 @@ void MainWindow::on_Modifier_produit_clicked()
 }
 void MainWindow::on_rechercherProduit_clicked()
 {
-    // Get the IDP value from the input field (assuming lineEdit_IDP is where the IDP is entered)
-    int IDP = ui->lineEdit_IDP->text().toInt();
 
-    // Instantiate a temporary Produit object to search for the product
-    Produit produit;
+    if(ui->find->text()=="")
+    Etmp.afficher("",0);
+    if(ui->find->text()=="")
+    Etmp.afficher(ui->find->text(),1);
 
-    // Call the rechercher function
-    if (produit.rechercher(IDP)) {
-        // If the product was found, update the UI fields with product details
-        QString NomP = ui->lineEdit_NomP->text();
-        QString quentit = ui->lineEdit_quentit->text();
-        QString categorie = ui->lineEdit_dateP->text();
-        QString dateP = ui->lineEdit_dateP->text();
+    ui->tableView_2->setModel(Etmp.afficher(ui->find->text(),1));
 
-        QMessageBox::information(this, tr("Recherche Réussie"), tr("Produit trouvé et détails affichés."));
-    } else {
-        // If the product was not found, show an error message
-        QMessageBox::warning(this, tr("Erreur de Recherche"), tr("Produit non trouvé. Veuillez vérifier l'ID."));
-    }
+
+
+
 }
 /*void MainWindow::on_rechercherProduit_clicked()
 {
@@ -396,38 +439,9 @@ void MainWindow::on_afficherHistorique_clicked() {
     ui->tableViewHistorique->resizeColumnsToContents();
 }
 
-/*void MainWindow::readarduino()
-{
-
-    int lastIndex;
-    QString serialBuffer;
-    QByteArray data = serialPort->readAll();
-    serialBuffer += QString::fromUtf8(data);
-    QStringList lines = serialBuffer.split('\n', Qt::SkipEmptyParts);
-
-    if (!lines.isEmpty()) {
-        serialBuffer = "";
-        QString lastLine = lines.last();
-        if (lastLine.startsWith("Received:")) {
-            lastLine = lastLine.mid(9).trimmed();
-        }
-        bool conversionOk;
-        lastIndex = lastLine.toInt(&conversionOk);
-        if (conversionOk) {
-            qDebug() << "---------------->" << lastIndex;
-            ui->lineEdit_quentit->setText(QString::number(lastIndex));
-            //make the modifications into the database here
-        } else {
-            qDebug() << "Conversion failed for line:" << lastLine;
-        }
-    } else {
-        qDebug() << "No complete lines received yet.";
-    }
-
-
-}*/
 void MainWindow::readarduino()
 {
+
     int lastIndex;
     QString serialBuffer;
     QByteArray data = serialPort->readAll();
@@ -440,44 +454,20 @@ void MainWindow::readarduino()
         if (lastLine.startsWith("Received:")) {
             lastLine = lastLine.mid(9).trimmed();
         }
-
         bool conversionOk;
         lastIndex = lastLine.toInt(&conversionOk);
-
         if (conversionOk) {
             qDebug() << "---------------->" << lastIndex;
             ui->lineEdit_quentit->setText(QString::number(lastIndex));
-
-            // Retrieve the product ID from the UI
-            int IDP = ui->lineEdit_IDP->text().toInt();
-
-            // Create a product object and set the updated quantity
-            Produit P(IDP, "", 0, QString::number(lastIndex), "", "");
-
-            // Update the database
-            bool test = P.modifier(IDP);
-
-            // Check the result and log an appropriate message
-            if (test) {
-                QMessageBox::information(nullptr, QObject::tr("OK"),
-                                         QObject::tr("Quantity updated successfully\n"
-                                                     "Click Cancel to exit."), QMessageBox::Cancel);
-                loadProduitData(); // Refresh the table view after modification
-            } else {
-                QMessageBox::critical(nullptr, QObject::tr("Not OK"),
-                                      QObject::tr("Quantity update failed.\n"
-                                                  "Click Cancel to exit."), QMessageBox::Cancel);
-            }
         } else {
             qDebug() << "Conversion failed for line:" << lastLine;
         }
     } else {
         qDebug() << "No complete lines received yet.";
     }
+
+
 }
-
-
-
 
 void MainWindow::on_pushButton_3_clicked()
 {
@@ -485,5 +475,94 @@ void MainWindow::on_pushButton_3_clicked()
     QByteArray tosd = QByteArray::number(ui->lineEdit_quentit->text().toInt()) + '\n';
     qDebug() << "Sending: " << tosd;
     serialPort->write(tosd);
+}
+
+
+void MainWindow::on_pushButton_Statistiques_clicked()
+{
+
+}
+
+
+void MainWindow::logProductToFile(const QString &idp, const QString &nomp) {
+    // File path (you can adjust this to your desired location)
+   QString filePath = "C:/Users/farah/Desktop/Atelier_Connexion/product_log.txt";
+
+    // Open the file in append mode
+    QFile file(filePath);
+    if (!file.open(QIODevice::Append | QIODevice::Text)) {
+        qDebug() << "Failed to open the file for logging.";
+        return;
+    }
+
+    // Create a text stream to write to the file
+    QTextStream out(&file);
+
+    // Get the current date and time
+    QString currentDate = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+
+    // Write the product details to the file
+    out << "IDP: " << idp << ", NOMP: " << nomp << ", Date: " << currentDate << "\n";
+
+    // Close the file
+    file.close();
+    qDebug() << "Product details logged successfully.";
+    qDebug() << "Current working directory:" << QDir::currentPath();
+}
+
+
+void MainWindow::displayProductsFromFile(QWidget *parent) {
+    // File path (same as used for writing)
+    QString filePath = "C:/Users/farah/Desktop/Atelier_Connexion/product_log.txt"; // Update this path as needed
+
+    // Open the file in read mode
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Failed to open file:" << file.errorString();
+        return;
+    }
+
+    // Create a layout for displaying the data
+
+
+    ui->verticalLayout->setAlignment(Qt::AlignTop);
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+
+        // Create a label for each line
+        QLabel *label = new QLabel(line, parent);
+        ui->verticalLayout->addWidget(label);
+    }
+
+    // Close the file
+    file.close();
+
+    // Set the layout to the parent widget
+    parent->setLayout(ui->verticalLayout);
+    qDebug() << "Products displayed successfully.";
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QModelIndex index = ui->tableView->selectionModel()->currentIndex();
+        if (!index.isValid()) {
+            qDebug() << "No row is currently selected.";
+            return;
+        }
+        QAbstractItemModel* model = ui->tableView->model();
+        if (!model) {
+            qDebug() << "The model is not set for the table view.";
+            return;
+        }
+        int columnIndex = 3;
+        QVariant data = model->data(model->index(index.row(), columnIndex), Qt::DisplayRole);
+        if (!data.isValid()) {
+            qDebug() << "No data found in column" << columnIndex;
+            return;
+        }    int temp;
+        temp=data.toInt()*50;
+        qDebug() <<temp;
+        ui->num_pm->setText(QString::number(temp));
 }
 

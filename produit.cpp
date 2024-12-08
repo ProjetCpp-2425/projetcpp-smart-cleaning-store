@@ -84,35 +84,24 @@ bool Produit::supprimer(int IDP) {
         return true;
 }
 
-QSqlQueryModel* Produit::afficher() {
-    // Vérifier la connexion à la base de données
-    if (!checkDatabaseConnection()) {
-        qDebug() << "Erreur de connexion à la base de données.";
-        return nullptr;
-    }
+QSqlQueryModel* Produit::afficher(QString data, int mode) {
 
-    // Créer un modèle pour afficher les données
-    QSqlQueryModel* model = new QSqlQueryModel();
+    QSqlQueryModel* model=new QSqlQueryModel();
+          if(mode==0)
+              model->setQuery("SELECT * FROM PRODUIT");
+           if(mode==1)
+           {
+               model->setQuery("select * from PRODUIT where IDP like '" + data + "%'");
+           }
+           model->setHeaderData(0, Qt::Horizontal, QObject::tr("IDP"));
+           model->setHeaderData(1, Qt::Horizontal, QObject::tr("NOMP"));
+           model->setHeaderData(2, Qt::Horizontal, QObject::tr("CATEGORIE"));
+           model->setHeaderData(3, Qt::Horizontal, QObject::tr("dateP"));
+           model->setHeaderData(4, Qt::Horizontal, QObject::tr("PRIX"));
+           model->setHeaderData(5, Qt::Horizontal, QObject::tr("QUANTITE"));
+        return model;
 
-    // Effectuer la requête pour récupérer les produits
-    model->setQuery("SELECT * FROM PRODUIT");
 
-    // Vérifier les erreurs lors de l'exécution de la requête
-    if (model->lastError().isValid()) {
-        qDebug() << "Erreur lors de l'affichage des produits:" << model->lastError().text();
-        return nullptr;
-    }
-
-    // Définir les en-têtes pour les colonnes du modèle
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("IDP"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("NOMP"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("CATEGORIE"));
-    model->setHeaderData(3, Qt::Horizontal, QObject::tr("dateP"));
-    model->setHeaderData(4, Qt::Horizontal, QObject::tr("PRIX"));
-    model->setHeaderData(5, Qt::Horizontal, QObject::tr("QUANTITE"));
-
-    // Retourner le modèle avec les résultats
-    return model;
 }
 
 bool Produit::modifier(int IDP) {

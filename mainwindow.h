@@ -4,7 +4,8 @@
 #include "produit.h"
 #include<QtSerialPort/QSerialPort>
 #include<QtSerialPort/QSerialPortInfo>
-
+#include<qpieseries.h>
+#include<QtCharts>
 namespace Ui {
 class MainWindow;
 }
@@ -31,6 +32,11 @@ private slots:
     void showStatistics();
     void on_afficherHistorique_clicked();
     void on_pushButton_3_clicked();
+void  logProductToFile(const QString &idp, const QString &nomp);
+    void on_pushButton_Statistiques_clicked();
+    void displayProductsFromFile(QWidget *parent);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
