@@ -14,13 +14,14 @@
 class employe
 {
 private:
-    int IDE,AGEE;
+    int IDE,AGEE,SOLDECONGE,SALAIREE;
     QString NOME,PRENOME,MAILE,POSTEE,DATE_EMBE,STATUTE,GENREE,CINE,NUME;
+
 
 
 public:
     employe(){}
-    employe(int,QString,QString,QString,QString,QString,QString,QString,QString,QString,int);
+    employe(int, QString, QString, QString, QString, QString, QString, QString, QString, QString, int, int, int);
     int getID(){return IDE;}
     QString getCIN(){return CINE;}
     QString getNUM(){return NUME;}
@@ -32,6 +33,9 @@ public:
     QString getstatut(){return STATUTE;}
     QString getgenre(){return GENREE;}
     int getage(){return AGEE;}
+    int getSOLDECONGE(){return SOLDECONGE;}
+    int getSALAIRE(){return SALAIREE;}
+
 
 
     void setID(int id){this ->IDE=id;}
@@ -45,6 +49,9 @@ public:
     void setstatut(QString s ){STATUTE=s;}
     void setGENRE(QString g){GENREE=g;}
     void setAGE(int a){this ->AGEE=a;}
+    void setSOLDECONGE(int solde){this ->SOLDECONGE=solde;}
+    void setSALAIRE(int SALAIREE){this ->SALAIREE=SALAIREE;}
+
 
     bool ajouter();
     QSqlQueryModel *afficher();
@@ -58,6 +65,10 @@ public:
     QSqlQueryModel *chercher(const QString &critere);
     QSqlQueryModel* getEquipeStatistics();
     bool exportToPdf();
+    int getSoldeConges(int IDE);
+    bool estActif(int IDE);
+
+
 
     // Method declaration
 

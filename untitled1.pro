@@ -12,8 +12,8 @@ SOURCES += \
     arduino.cpp \
     conge.cpp \
     connection.cpp \
+    dashboarddialog.cpp \
     dialogmodifier.cpp \
-    dialogscore.cpp \
     employe.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -23,15 +23,15 @@ HEADERS += \  \
     arduino.h \
     conge.h \
     connection.h \
+    dashboarddialog.h \
     dialogmodifier.h \
-    dialogscore.h \
     employe.h \
     mainwindow.h \
     smtp.h
 
 FORMS += \
+    dashboarddialog.ui \
     dialogmodifier.ui \
-    dialogscore.ui \
     mainwindow.ui
 
 # Default rules for deployment.

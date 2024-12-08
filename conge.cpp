@@ -23,10 +23,9 @@ conge::conge(int IDE, int IDC, QString DATEDEB, QString TYPE, int PERIODE, QStri
 
 //new
 bool conge::ajouterConge(int IDC, int IDE, QString DATEDEB, QString TYPE, int PERIODE, QString STATUT) {
-    // Exemple de code pour ajouter le congé
-    // Vous pouvez ici ajouter le congé dans une base de données ou une structure de données.
     QSqlQuery query;
-    query.prepare("INSERT INTO Conge (IDC, IDE, DATEDEB, TYPE, PERIODE, STATUT) VALUES (:IDC, :IDE, :DATEDEB, :TYPE, :PERIODE, :STATUT)");
+    query.prepare("INSERT INTO conge (IDC, IDE, DATEDEB, TYPE, PERIODE, STATUT) "
+                  "VALUES (:IDC, :IDE, :DATEDEB, :TYPE, :PERIODE, :STATUT)");
     query.bindValue(":IDC", IDC);
     query.bindValue(":IDE", IDE);
     query.bindValue(":DATEDEB", DATEDEB);
@@ -34,12 +33,16 @@ bool conge::ajouterConge(int IDC, int IDE, QString DATEDEB, QString TYPE, int PE
     query.bindValue(":PERIODE", PERIODE);
     query.bindValue(":STATUT", STATUT);
 
+    qDebug() << query.lastQuery();  // Afficher la requête SQL avant exécution
+
     if (query.exec()) {
-        return true; // Le congé a été ajouté avec succès
+        return true;
     } else {
-        return false; // Échec de l'ajout du congé
+        qDebug() << query.lastError().text();  // Afficher le message d'erreur
+        return false;
     }
 }
+
 bool conge::mettreAJourStatut(int IDE, const QString &nouveauStatut) {
     // Vérifier le statut actuel de l'employé
     QSqlQuery checkQuery;
@@ -134,3 +137,19 @@ QSqlQueryModel * conge::afficher(){
     return joursTravailles;
 }
 */
+bool conge::mettreAJourSolde(int IDE, int nouveauSolde)
+{
+    QSqlQuery query;
+    // Préparer la requête de mise à jour du solde
+    query.prepare("UPDATE employe SET SOLDECONGE = :nouveauSolde WHERE IDE = :IDE");
+    query.bindValue(":nouveauSolde", nouveauSolde);
+    query.bindValue(":IDE", IDE);
+
+    // Exécuter la requête
+    if (query.exec()) {
+        return true;  // Mise à jour réussie
+    } else {
+        qDebug() << "Erreur lors de la mise à jour du solde : " << query.lastError();
+        return false;  // Erreur dans la mise à jour
+    }
+}

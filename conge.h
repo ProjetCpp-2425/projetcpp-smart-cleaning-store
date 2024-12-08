@@ -42,6 +42,7 @@ public:
     bool mettreAJourStatut(int IDE, const QString &nouveauStatut); // Met à jour le statut
     QSqlQueryModel* afficher();
     void afficherDansTableView(QTableView* tableView_2);
+    bool mettreAJourSolde(int IDE, int PERIODE);
 
    };
 

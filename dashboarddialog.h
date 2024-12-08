@@ -1,4 +1,4 @@
-/*#ifndef DASHBOARDDIALOG_H
+#ifndef DASHBOARDDIALOG_H
 #define DASHBOARDDIALOG_H
 
 #include <QDialog>
@@ -24,4 +24,3 @@ private:
 };
 
 #endif // DASHBOARDDIALOG_H
-*/

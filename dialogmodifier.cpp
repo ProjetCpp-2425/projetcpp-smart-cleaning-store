@@ -49,6 +49,7 @@ void Dialogmodifier::loadEmployeData(int IDE)
     ui->STATUT->setText(e.getstatut());
     ui->GENRE->setText(e.getgenre());
     ui->AGE->setText(QString::number(e.getage()));
+    ui->SALAIRE->setText(QString::number(e.getSALAIRE()));
 }
 
 
@@ -64,6 +65,9 @@ void Dialogmodifier::on_pushButton_Modifier_clicked()
     QString STATUTE = ui->STATUT->text();
     QString GENREE = ui->GENRE->text();
     int AGEE = ui->AGE->text().toInt();
+    int SALAIREE = ui->SALAIRE->text().toInt();
+
+    qDebug() << "SALAIREE Value before modification:" << SALAIREE;
 
     // Retrieve current employee data
     employe e;
@@ -84,7 +88,14 @@ void Dialogmodifier::on_pushButton_Modifier_clicked()
     if (!DATE_EMBE.isEmpty()) e.setdate_emb(DATE_EMBE);
     if (!STATUTE.isEmpty()) e.setstatut(STATUTE);
     if (!GENREE.isEmpty()) e.setGENRE(GENREE);
-    if (AGEE > 18) e.setAGE(AGEE);  // Validate age before updating
+    if (AGEE > 18) e.setAGE(AGEE);
+    if (SALAIREE > 0) {
+           e.setSALAIRE(SALAIREE);  // Set the new salary value
+       } else {
+           qDebug() << "SALAIREE not valid. It remains 0.";
+       }
+
+   // Validate age before updating
 
     // Save the updated employee information
     bool test = e.modifier(IDE);  // Pass the ID to modify the employee

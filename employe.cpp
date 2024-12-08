@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <QPrinter>
 
-employe::employe(int IDE,QString CINE,QString NUME,QString NOME,QString PRENOME,QString MAILE,QString POSTEE,QString DATE_EMBE,QString STATUTE,QString GENREE,int AGEE)
+employe::employe(int IDE, QString CINE, QString NUME, QString NOME, QString PRENOME, QString MAILE, QString POSTEE, QString DATE_EMBE, QString STATUTE, QString GENREE, int AGEE, int SOLDECONGE, int SALAIREE)
 {
     this->IDE=IDE;
     this->CINE=CINE;
@@ -22,46 +22,20 @@ employe::employe(int IDE,QString CINE,QString NUME,QString NOME,QString PRENOME,
     this->STATUTE=STATUTE;
     this->GENREE=GENREE;
     this->AGEE=AGEE;
+    this->SOLDECONGE=SOLDECONGE;
+    this->SALAIREE=SALAIREE;
+    qDebug() << "Constructor - SALAIREE initialized as:" << SALAIREE;
+
+
 }
 
-//new
-/*int employe::calculerScore(int IDE)
-{
-    // Récupérer la date d'embauche de l'employé depuis la base de données
-    QSqlQuery query;
-    query.prepare("SELECT DATEDEB FROM employe WHERE IDE = :IDE");
-    query.bindValue(":IDE", IDE);
-    query.exec();
-
-    if (query.next()) {
-        QString DATE_EMBE = query.value(0).toString();  // Récupérer la date d'embauche sous forme de string
-
-        // Convertir la chaîne de caractères en QDate, en spécifiant le format de la date
-        QDate DATE_EMBE = QDate::fromString(DATE_EMBE, "yyyy-MM-dd");  // Ajustez le format si nécessaire
-
-        if (DATE_EMBE.isValid()) {
-            // Calculer l'ancienneté en années
-            QDate currentDate = QDate::currentDate();  // Date actuelle
-            int anciennete = dateEmbauche.yearsTo(currentDate);  // Calcul de l'ancienneté en années
-
-            // Le score est basé sur l'ancienneté (par exemple, 1 point par année d'ancienneté)
-            return anciennete;
-        } else {
-            qDebug() << "La date d'embauche n'est pas valide";
-            return 0;  // En cas d'erreur, retourner 0
-        }
-    } else {
-        qDebug() << "Aucun employé trouvé avec cet ID";
-        return 0;  // En cas d'erreur, retourner 0
-    }
-}
-
-*/
 
 bool employe ::ajouter(){
     QSqlQuery query;
-    query.prepare("INSERT INTO employe (IDE,CINE,NUME,NOME ,PRENOME,MAILE,POSTEE,DATE_EMBE,STATUTE,GENREE,AGEE)"
-                  "VALUES( :IDE, :CINE, :NUME, :NOME, :PRENOME, :MAILE, :POSTEE, :DATE_EMBE, :STATUTE, :GENREE, :AGEE)");
+    qDebug() << "SALAIREE Value before Query:" << SALAIREE;
+
+    query.prepare("INSERT INTO employe (IDE,CINE,NUME,NOME ,PRENOME,MAILE,POSTEE,DATE_EMBE,STATUTE,GENREE,AGEE,SALAIREE)"
+                  "VALUES( :IDE, :CINE, :NUME, :NOME, :PRENOME, :MAILE, :POSTEE, :DATE_EMBE, :STATUTE, :GENREE, :AGEE, :SALAIREE)");
    query.bindValue(":IDE",IDE);
    query.bindValue(":CINE",CINE);
    query.bindValue(":NUME",NUME);
@@ -73,8 +47,14 @@ bool employe ::ajouter(){
    query.bindValue(":STATUTE",STATUTE);
    query.bindValue(":GENREE",GENREE);
    query.bindValue(":AGEE",AGEE);
+   query.bindValue(":SALAIREE", QVariant::fromValue(SALAIREE));
 
-   return query.exec();
+
+   if (!query.exec()) {
+       qDebug() << "SQL Error:" << query.lastError().text();
+       return false;
+   }
+   return true;
 }
 
 QSqlQueryModel * employe ::afficher(){
@@ -91,6 +71,9 @@ QSqlQueryModel * employe ::afficher(){
         model->setHeaderData(8,Qt::Horizontal,QObject::tr("STATUTE"));
         model->setHeaderData(9,Qt::Horizontal,QObject::tr("GENREE"));
         model->setHeaderData(10,Qt::Horizontal,QObject::tr("AGEE"));
+        model->setHeaderData(11,Qt::Horizontal,QObject::tr("SOLDECONGE"));
+        model->setHeaderData(12,Qt::Horizontal,QObject::tr("SALAIREE"));
+
 
         return model;
     }
@@ -129,11 +112,15 @@ employe employe ::getEmployeById(int IDE)
         employe.setNom(query.value(3).toString());
         employe.setPrenom(query.value(4).toString());
         employe.setMail(query.value(5).toString());
-        employe.setPoste(query.value(2).toString());
-        employe.setdate_emb(query.value(3).toString());
-        employe.setstatut(query.value(4).toString());
-        employe.setGENRE(query.value(5).toString());
-        employe.setAGE(query.value(0).toInt());
+        employe.setPoste(query.value(6).toString());
+        employe.setdate_emb(query.value(7).toString());
+        employe.setstatut(query.value(8).toString());
+        employe.setGENRE(query.value(9).toString());
+        employe.setAGE(query.value(10).toInt());
+        employe.setSOLDECONGE(query.value(11).toInt());
+        employe.setSALAIRE(query.value(12).toInt());
+
+
 
     }
 
@@ -167,6 +154,9 @@ bool employe::loadEmployeById(int IDE) {
         STATUTE = query.value("STATUTE").toString();
         GENREE = query.value("GENREE").toString();
         AGEE = query.value("AGEE").toInt();
+        SOLDECONGE = query.value("SOLDECONGE").toInt();
+        SALAIREE = query.value("SALAIREE").toInt();
+
         return true;
     } else {
         // Correction : Ajoutez une trace de l'erreur pour faciliter le débogage si `query.exec()` échoue.
@@ -179,7 +169,7 @@ bool employe::modifier(int IDE) {
     QSqlQuery query;
     query.prepare("UPDATE employe SET CINE = :CINE, NUME = :NUME, NOME = :NOME, PRENOME = :PRENOME, "
                   "MAILE = :MAILE, POSTEE = :POSTEE, DATE_EMBE = :DATE_EMBE, STATUTE = :STATUTE, "
-                  "GENREE = :GENREE, AGEE = :AGEE WHERE IDE = :IDE");
+                  "GENREE = :GENREE, AGEE = :AGEE ,SALAIREE = :SALAIREE WHERE IDE = :IDE");
 
     query.bindValue(":CINE", CINE);
     query.bindValue(":NUME", NUME);
@@ -191,6 +181,8 @@ bool employe::modifier(int IDE) {
     query.bindValue(":STATUTE", STATUTE);
     query.bindValue(":GENREE", GENREE);
     query.bindValue(":AGEE", AGEE);
+    query.bindValue(":SALAIREE", SALAIREE);
+
     query.bindValue(":IDE", IDE);
 
     if (!query.exec()) {
@@ -232,6 +224,9 @@ QSqlQueryModel *employe::chercher(const QString &critere)
         model->setHeaderData(8,Qt::Horizontal,QObject::tr("STATUTE"));
         model->setHeaderData(9,Qt::Horizontal,QObject::tr("GENREE"));
         model->setHeaderData(10,Qt::Horizontal,QObject::tr("AGEE"));
+        model->setHeaderData(11,Qt::Horizontal,QObject::tr("SOLDECONGE"));
+        model->setHeaderData(12,Qt::Horizontal,QObject::tr("SALAIREE"));
+
         return model;
     } else {
         qDebug() << "Erreur lors de l'exécution de la requête de recherche :" << query.lastError().text();
@@ -301,6 +296,10 @@ bool employe::exportToPdf()
                    "<th style='border: 1px solid #000; padding: 8px; text-align: left;font-weight: bold;'>GENREE</th>"
                    "<th style='border: 1px solid #000; padding: 8px; text-align: left;font-weight: bold;'>STATUTE</th>"
                    "<th style='border: 1px solid #000; padding: 8px; text-align: left;font-weight: bold;'>AGEE</th>"
+                   "<th style='border: 1px solid #000; padding: 8px; text-align: left;font-weight: bold;'>SOLDECONGE</th>"
+                   "<th style='border: 1px solid #000; padding: 8px; text-align: left;font-weight: bold;'>SALAIREE</th>"
+
+
 
 
                    "</tr></thead>";
@@ -339,4 +338,26 @@ htmlContent += "</tbody></table>";
 
     qDebug() << "PDF exported successfully to:" << filePath;
     return true;
+}
+int employe::getSoldeConges(int IDE)
+{
+    QSqlQuery query;
+    query.prepare("SELECT SOLDECONGE FROM employe WHERE IDE = :IDE");
+    query.bindValue(":IDE", IDE);
+
+    if (query.exec() && query.next()) {
+        return query.value("SOLDECONGE").toInt();
+    } else {
+        qDebug() << "Erreur lors de la récupération du solde de congé : " << query.lastError();
+        return -1;  // Valeur indicative d'erreur
+    }
+}
+bool employe::estActif(int IDE) {
+    QSqlQuery query;
+    query.prepare("SELECT STATUTE FROM employe WHERE IDE = :IDE");
+    query.bindValue(":IDE", IDE);
+    if (query.exec() && query.next()) {
+        return query.value(0).toString() == "Actif";  // Vérifie si le statut est "Actif"
+    }
+    return false;  // Par défaut, retourne faux si l'employé n'existe pas
 }

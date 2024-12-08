@@ -32,9 +32,14 @@
 #include <QRegularExpression>
 #include "employe.h"
 #include "conge.h"
-#include "dialogscore.h"
+#include "dashboarddialog.h"
+#include "ui_dashboarddialog.h"
 #include <QtSerialPort>
-#include "smtp.h"
+#include <iostream>
+#include <ctime>
+#include <thread>
+#include <chrono>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -111,7 +116,7 @@ MainWindow::~MainWindow() {
 void MainWindow::on_pushButton_goToScorePage_clicked()
 {
     // Create and show the DialogScore
-    Dialogscore *dialog = new Dialogscore(this);  // Create the dialog (with MainWindow as parent)
+    DashboardDialog *dialog = new DashboardDialog(this);  // Create the dialog (with MainWindow as parent)
     dialog->exec();  // Show the dialog as a modal popup
 }
 
@@ -219,8 +224,11 @@ void MainWindow::on_refresh_Clicked() {
 
     }
 
-void MainWindow::on_pushButton_ajouter_clicked()
-{
+void MainWindow::showErrorMessage(const QString &message) {
+    QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), message, QMessageBox::Ok);
+}
+
+void MainWindow::on_pushButton_ajouter_clicked() {
     // Récupération des valeurs des champs
     int IDE = ui->lineEdit_idE->text().toInt();
     QString CINE = ui->lineEdit_cinE->text();
@@ -233,79 +241,72 @@ void MainWindow::on_pushButton_ajouter_clicked()
     QString STATUTE = ui->lineEdit_statutE->text();
     QString GENREE = ui->lineEdit_genreE->text();
     int AGEEE = ui->lineEdit_ageE->text().toInt();
+    int SALAIREE = ui->SALAIRE->text().toInt();
 
     // Contrôles de saisie
     if (NOME.isEmpty() || PRENOME.isEmpty() || MAILE.isEmpty() || POSTEE.isEmpty() || STATUTE.isEmpty() || GENREE.isEmpty() || AGEEE <= 0) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Veuillez remplir tous les champs obligatoires et vérifier l'âge."), QMessageBox::Ok);
+        showErrorMessage(QObject::tr("Veuillez remplir tous les champs obligatoires et vérifier l'âge."));
         return;
     }
 
     // Vérification que l'ID est un entier positif
     if (IDE <= 0) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("L'ID doit être un entier positif."), QMessageBox::Ok);
+        showErrorMessage(QObject::tr("L'ID doit être un entier positif."));
         return;
     }
 
     // Vérification que le CIN et NUME sont des entiers à 8 chiffres
-    QString CIN_str = ui->lineEdit_cinE->text();
-    QString NUME_str = ui->lineEdit_numE->text();
-    QRegularExpression re("[0-9]{8}");  // Expression régulière pour un entier de 8 chiffres
-    if (!re.match(CIN_str).hasMatch()) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Le CIN doit être un entier à 8 chiffres."), QMessageBox::Ok);
+    QRegularExpression re("[0-9]{8}");
+    if (!re.match(CINE).hasMatch()) {
+        showErrorMessage(QObject::tr("Le CIN doit être un entier à 8 chiffres."));
         return;
     }
 
-    if (!re.match(NUME_str).hasMatch()) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Le NUME doit être un entier à 8 chiffres."), QMessageBox::Ok);
+    if (!re.match(NUME).hasMatch()) {
+        showErrorMessage(QObject::tr("Le NUME doit être un entier à 8 chiffres."));
         return;
     }
 
     // Vérification du statut (actif ou inactif)
     if (STATUTE != "actif" && STATUTE != "inactif") {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Le statut doit être soit 'actif' soit 'inactif'."), QMessageBox::Ok);
+        showErrorMessage(QObject::tr("Le statut doit être soit 'actif' soit 'inactif'."));
         return;
     }
 
     // Vérification du genre (femme ou homme)
     if (GENREE != "femme" && GENREE != "homme") {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Le genre doit être soit 'femme' soit 'homme'."), QMessageBox::Ok);
+        showErrorMessage(QObject::tr("Le genre doit être soit 'femme' soit 'homme'."));
         return;
     }
 
     // Vérification que l'âge est supérieur à 18
     if (AGEEE < 18) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur d'âge"), QObject::tr("L'employé doit avoir plus de 18 ans."), QMessageBox::Ok);
+        showErrorMessage(QObject::tr("L'employé doit avoir plus de 18 ans."));
         return;
     }
 
-    // Validation de l'email avec une expression régulière
+    // Validation de l'email
     QRegularExpression emailPattern("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
-    QRegularExpressionMatch emailMatch = emailPattern.match(MAILE);
-    if (!emailMatch.hasMatch()) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("L'adresse e-mail n'est pas valide."), QMessageBox::Ok);
+    if (!emailPattern.match(MAILE).hasMatch()) {
+        showErrorMessage(QObject::tr("L'adresse e-mail n'est pas valide."));
         return;
     }
 
-    // Vérification du format de la date (ex: YYYY-MM-DD)
+    // Vérification du format de la date
     QRegularExpression datePattern("^\\d{4}-\\d{2}-\\d{2}$");
-    QRegularExpressionMatch dateMatch = datePattern.match(DATE_EMBE);
-    if (!dateMatch.hasMatch()) {
-        QMessageBox::warning(nullptr, QObject::tr("Erreur de saisie"), QObject::tr("Le format de la date d'embauche n'est pas valide (attendu : YYYY-MM-DD)."), QMessageBox::Ok);
+    if (!datePattern.match(DATE_EMBE).hasMatch()) {
+        showErrorMessage(QObject::tr("Le format de la date d'embauche n'est pas valide (attendu : YYYY-MM-DD)."));
         return;
     }
 
-    // Création de l'employé
-    employe E(IDE, CINE, NUME, NOME, PRENOME, MAILE, POSTEE, DATE_EMBE, STATUTE, GENREE, AGEEE);
-
-    // Tentative d'ajout de l'employé
-    bool test = E.ajouter();
-    if (test) {
+    // Création et ajout de l'employé
+    employe E(IDE, CINE, NUME, NOME, PRENOME, MAILE, POSTEE, DATE_EMBE, STATUTE, GENREE, AGEEE,60,SALAIREE);
+    if (E.ajouter()) {
         QMessageBox::information(nullptr, QObject::tr("Ajout réussi"), QObject::tr("L'employé a été ajouté avec succès."), QMessageBox::Ok);
-        ui->tableView->setModel(E.afficher());  // Actualiser la vue
+        ui->tableView->setModel(E.afficher());
     } else {
         QMessageBox::critical(nullptr, QObject::tr("Erreur"), QObject::tr("L'ajout de l'employé a échoué. Vérifiez les données ou la connexion à la base de données."), QMessageBox::Ok);
     }
-
 }
 
 void MainWindow::on_pushButton_supprimer_clicked()
@@ -449,7 +450,7 @@ bool MainWindow::validerSaisie() {
     return true; // Si toutes les validations sont passées
 }
 
-void MainWindow::on_pushButton_approuver_clicked()
+/*void MainWindow::on_pushButton_approuver_clicked()
 {
     if (!validerSaisie()) return;
 
@@ -489,10 +490,11 @@ void MainWindow::on_pushButton_approuver_clicked()
       }
     ui->tableView_2->setModel(c.afficher());
 }
-void MainWindow::handleEmailStatus(const QString &status)
+/*void MainWindow::handleEmailStatus(const QString &status)
 {
     QMessageBox::information(this, "Email Status", status);
 }
+
 void MainWindow::on_pushButton_refuser_clicked()
 {
     if (!validerSaisie()) return;
@@ -513,7 +515,7 @@ void MainWindow::on_pushButton_refuser_clicked()
        }
        ui->tableView_2->setModel(c.afficher());
    }
-
+*/
 void MainWindow::on_exporterEnPDF_clicked()
 {
     if (Etmp.exportToPdf()==true) {
@@ -521,5 +523,112 @@ void MainWindow::on_exporterEnPDF_clicked()
            } else {
                QMessageBox::critical(this, "Error", "Failed to export PDF!");
            }
+}
+
+
+void MainWindow::on_pushButton_approuver_clicked()
+{
+    // Valider les saisies
+    if (!validerSaisie()) return;
+
+    int IDC = ui->IDC->text().toInt();
+    int IDE = ui->IDE->text().toInt();
+    QString DATEDEB = ui->DATEDEB->text().trimmed();  // Utilisation de QDate
+    QString TYPE = ui->TYPE->text().trimmed();
+    int PERIODE = ui->PERIODE->text().toInt();
+
+    conge c;
+    employe e;
+    QSqlQuery query;
+     ui->tableView->setModel(e.afficher());
+     // Requête pour récupérer le statut de l'employé
+     query.prepare("SELECT STATUTE FROM EMPLOYE WHERE IDE = :IDE");
+     query.bindValue(":IDE", IDE);
+
+     if (!query.exec()) {
+         // Si la requête échoue, afficher une erreur
+         qDebug() << "Erreur lors de l'exécution de la requête pour récupérer le statut : " << query.lastError().text();
+         QMessageBox::critical(this, "Erreur", "Impossible de vérifier le statut de l'employé.");
+         return;
+     }
+
+     if (query.next()) {
+         // Lire le statut depuis le résultat de la requête
+         QString STATUTE = query.value(0).toString().trimmed();
+         qDebug() << "Statut actuel de l'employé (IDE:" << IDE << "):" << STATUTE;
+
+         if (STATUTE.toLower() != "actif") { // Vérifier si le statut est "actif"
+             QMessageBox::warning(this, "Erreur", "L'employé est inactif. Impossible d'approuver le congé.");
+             c.ajouterConge(IDC, IDE, DATEDEB, TYPE, PERIODE, "Refuse"); // Enregistrer le congé refusé
+             ui->tableView_2->setModel(c.afficher()); // Actualiser la vue
+             return;
+         }
+     } else {
+         // Aucun résultat trouvé pour l'IDE donné
+         QMessageBox::critical(this, "Erreur", "L'employé avec cet ID n'existe pas.");
+         return;
+     }
+
+
+    // Vérification du solde avant d'ajouter le congé
+    int soldeActuel = e.getSoldeConges(IDE);  // Récupérer le solde actuel
+
+    if (soldeActuel < 0) {
+        QMessageBox::warning(this, "Erreur", "Le solde de congé est invalide.");
+        return;
+    }
+
+    if (soldeActuel < PERIODE) {
+        QMessageBox::warning(this, "Erreur", "Solde de congé insuffisant pour cette période.");
+        return;
+    }
+
+    // Ajouter le congé avec statut "Approuvé"
+    if (c.ajouterConge(IDC, IDE, DATEDEB, TYPE, PERIODE, "Approuve")) {
+        int nouveauSolde = soldeActuel - PERIODE;  // Calcul du nouveau solde après déduction
+
+        if (c.mettreAJourSolde(IDE, nouveauSolde)) {
+            qDebug() << "Solde de congé mis à jour avec succès.";
+        } else {
+            QMessageBox::warning(this, "Erreur", "Erreur lors de la mise à jour du solde de congé.");
+            return;
+        }
+        if (c.mettreAJourStatut(IDE, "Inactif")) {
+                    QMessageBox::information(this, "Succès", "Congé approuvé et statut employé mis à jour.");
+                    ui->tableView->setModel(e.afficher());  // Réactualiser la vue des employés
+                } else {
+                    QMessageBox::warning(this, "Erreur", "Échec de la mise à jour du statut de l'employé.");
+                }
+
+        ui->tableView_2->setModel(c.afficher());
+
+    }
+    else {
+        QMessageBox::critical(this, "Erreur", "Échec de l'approbation du congé.");
+    }
+}
+
+
+void MainWindow::on_pushButton_refuser_clicked()
+{
+    if (!validerSaisie()) return;
+
+    int IDC = ui->IDC->text().toInt();
+    int IDE = ui->IDE->text().toInt();
+    QString DATEDEB = ui->DATEDEB->text().trimmed();  // Utilisation de QDate
+    QString TYPE = ui->TYPE->text().trimmed();
+    int PERIODE = ui->PERIODE->text().toInt();
+
+    conge c;
+
+    // Ajouter le congé avec statut "Refusé"
+    if (c.ajouterConge(IDC, IDE, DATEDEB, TYPE, PERIODE, "Refuse")) {
+        QMessageBox::information(this, "Succès", "Congé refusé.");
+    } else {
+        QMessageBox::critical(this, "Erreur", "Échec du refus du congé.");
+    }
+
+    // Mise à jour du tableau des congés
+    ui->tableView_2->setModel(c.afficher());
 }
 

@@ -1,50 +1,69 @@
-#include "dialogscore.h"
-#include "conge.h"
-#include "qdatetime.h"
-#include "ui_dialogscore.h"
-#include<QMessageBox>
-Dialogscore::Dialogscore(QWidget *parent) :
+/*#include "dashboarddialog.h"
+#include "ui_dashboarddialog.h"
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+#include<qmessagebox>
+
+DashboardDialog::DashboardDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Dialogscore)
-{
+    ui(new Ui::DashboardDialog) {
     ui->setupUi(this);
+
+    // Set default date range to the current month
+    QDate currentDate = QDate::currentDate();
+    ui->dateEditStart->setDate(currentDate.addMonths(-1));  // Default to 1 month before
+    ui->dateEditEnd->setDate(currentDate);                 // Default to today
+
+    // Load data initially
+    loadDashboardData();
+
+    // Connect the Load button to refresh the dashboard data
+    connect(ui->buttonLoad, &QPushButton::clicked, this, &DashboardDialog::loadDashboardData);
+
+    // Connect close button
+    connect(ui->buttonClose, &QPushButton::clicked, this, &DashboardDialog::close);
 }
 
-Dialogscore::~Dialogscore()
+DashboardDialog::~DashboardDialog() {
+    delete ui;
+}
+
+
+void DashboardDialog::loadDashboardData() {
+        QDate startDate = ui->dateEditStart->date();
+        QDate endDate = ui->dateEditEnd->date();
+
+        QSqlQuery query;
+
+        query.prepare("SELECT SUM(TOTALHT) AS totalSpent, "
+                      "MAX(CODEMEDIC) AS mostSoldMedic, "
+                      "SUM(QUANTITE) AS totalQuantity "
+                      "FROM SALES WHERE SDATE BETWEEN :startDate AND :endDate");
+        query.bindValue(":startDate", startDate);
+        query.bindValue(":endDate", endDate);
+
+        if (query.exec() && query.next()) {
+            double totalSpent = query.value("totalSpent").toDouble();
+            QString mostSoldMedic = query.value("mostSoldMedic").toString();
+            int totalQuantity = query.value("totalQuantity").toInt();
+
+            ui->labelTotalSales->setText(QString::number(totalSpent, 'f', 2) + " DT");
+            ui->labelMostSoldProduct->setText(mostSoldMedic);
+            ui->labelTotalQuantity->setText(QString::number(totalQuantity));
+        } else {
+            QMessageBox::warning(this, tr("Error"), tr("Failed to load data: %1").arg(query.lastError().text()));
+        }
+    }
+
+
+    // Update the UI with retrieved data
+
+
+void DashboardDialog::on_buttonLoad_clicked()
 {
-    delete ui;  // Free the memory
+
+        loadDashboardData();
 }
 
-
-
-/*void Dialogscore::on_pushButton_calculerScore_clicked() {
-    // Récupérer l'ID employé et l'année depuis les champs de saisie
-    bool ok;
-    int IDE = ui->lineEdit_IDE_score->text().toInt(&ok);
-    if (!ok || IDE <= 0) {
-        QMessageBox::warning(this, "Erreur", "Veuillez entrer un ID employé valide.");
-        return;
-    }
-
-    int annee = ui->lineEdit_Annee_score->text().toInt(&ok);
-    if (!ok || annee < 1900 || annee > QDate::currentDate().year()) {
-        QMessageBox::warning(this, "Erreur", "Veuillez entrer une année valide.");
-        return;
-    }
-
-    // Calculer le score en utilisant la fonction de votre classe `conge`
-    conge congeInstance;
-    int score = congeInstance.calculerScoreEmploye(IDE, annee); // À implémenter dans votre classe `conge`
-
-    if (score == -1) {
-        QMessageBox::critical(this, "Erreur", "Impossible de calculer le score.");
-        return;
-    }
-
-    // Générer un affichage d'étoiles basé sur le score
-    QChar etoile = QChar(0x2B50);  // Unicode for star character '⭐'
-    QString etoiles = QString(score, etoile); // Répète l'étoile selon le score
-    ui->label_etoiles_score->setText(etoiles);  // Affiche les étoiles
-}
 */
-

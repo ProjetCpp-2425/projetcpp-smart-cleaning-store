@@ -380,7 +380,6 @@
      <font>
       <family>Segoe UI</family>
       <pointsize>36</pointsize>
-      <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
      </font>
@@ -445,7 +444,7 @@
       <x>0</x>
       <y>60</y>
       <width>1521</width>
-      <height>621</height>
+      <height>661</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -815,10 +814,10 @@
      <widget class="QTabWidget" name="tabWidget_2">
       <property name="geometry">
        <rect>
-        <x>1180</x>
+        <x>1190</x>
         <y>0</y>
         <width>321</width>
-        <height>591</height>
+        <height>631</height>
        </rect>
       </property>
       <property name="palette">
@@ -859,43 +858,17 @@
        </palette>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>formulaire</string>
        </attribute>
-       <widget class="QLabel" name="label_26">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>0</y>
-          <width>271</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Segoe UI</family>
-          <pointsize>16</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel {
-    color: #99CC99 ; /* Couleur du texte en bleu clair */
-}</string>
-        </property>
-        <property name="text">
-         <string>Formulaire Employé</string>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_25">
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>90</y>
+          <y>60</y>
           <width>81</width>
           <height>21</height>
          </rect>
@@ -914,7 +887,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>130</y>
+          <y>100</y>
           <width>91</width>
           <height>21</height>
          </rect>
@@ -933,7 +906,7 @@
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>210</y>
+          <y>190</y>
           <width>81</width>
           <height>21</height>
          </rect>
@@ -952,7 +925,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>250</y>
+          <y>220</y>
           <width>91</width>
           <height>31</height>
          </rect>
@@ -971,7 +944,7 @@
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>290</y>
+          <y>260</y>
           <width>81</width>
           <height>31</height>
          </rect>
@@ -990,7 +963,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>90</y>
+          <y>60</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1000,7 +973,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>130</y>
+          <y>100</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1010,7 +983,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>210</y>
+          <y>180</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1020,7 +993,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>250</y>
+          <y>220</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1030,7 +1003,7 @@
         <property name="geometry">
          <rect>
           <x>70</x>
-          <y>50</y>
+          <y>20</y>
           <width>91</width>
           <height>21</height>
          </rect>
@@ -1049,7 +1022,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>50</y>
+          <y>20</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1059,7 +1032,7 @@
         <property name="geometry">
          <rect>
           <x>50</x>
-          <y>330</y>
+          <y>300</y>
           <width>91</width>
           <height>21</height>
          </rect>
@@ -1078,7 +1051,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>330</y>
+          <y>300</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1088,7 +1061,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>370</y>
+          <y>330</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1107,7 +1080,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>370</y>
+          <y>340</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1117,7 +1090,7 @@
         <property name="geometry">
          <rect>
           <x>30</x>
-          <y>410</y>
+          <y>380</y>
           <width>101</width>
           <height>31</height>
          </rect>
@@ -1136,7 +1109,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>410</y>
+          <y>380</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1146,7 +1119,7 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>510</y>
+          <y>540</y>
           <width>181</width>
           <height>31</height>
          </rect>
@@ -1186,8 +1159,8 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>430</y>
-          <width>211</width>
+          <y>400</y>
+          <width>171</width>
           <height>51</height>
          </rect>
         </property>
@@ -1205,7 +1178,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>470</y>
+          <y>440</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1215,7 +1188,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>290</y>
+          <y>260</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1225,7 +1198,7 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>170</y>
+          <y>140</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -1235,7 +1208,7 @@
         <property name="geometry">
          <rect>
           <x>50</x>
-          <y>170</y>
+          <y>140</y>
           <width>91</width>
           <height>21</height>
          </rect>
@@ -1248,6 +1221,35 @@
         </property>
         <property name="text">
          <string>age:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_33">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>470</y>
+          <width>211</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>salaire:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="SALAIRE">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>480</y>
+          <width>161</width>
+          <height>31</height>
+         </rect>
         </property>
        </widget>
       </widget>
@@ -1583,7 +1585,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>680</y>
+      <y>720</y>
       <width>211</width>
       <height>31</height>
      </rect>
@@ -1618,7 +1620,7 @@
     <property name="geometry">
      <rect>
       <x>1300</x>
-      <y>700</y>
+      <y>740</y>
       <width>161</width>
       <height>31</height>
      </rect>
@@ -1627,7 +1629,6 @@
      <font>
       <family>Segoe UI</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -1653,7 +1654,7 @@
     <property name="geometry">
      <rect>
       <x>970</x>
-      <y>700</y>
+      <y>730</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -1661,7 +1662,7 @@
     <property name="font">
      <font>
       <family>Segoe UI</family>
-      <pointsize>20</pointsize>
+      <pointsize>15</pointsize>
       <italic>true</italic>
      </font>
     </property>
@@ -1677,7 +1678,7 @@
 </string>
     </property>
     <property name="text">
-     <string>score</string>
+     <string>dashboard</string>
     </property>
     <property name="checkable">
      <bool>true</bool>

@@ -51,14 +51,16 @@ private slots:
 
 
 
+
 public slots:
-    void handleEmailStatus(const QString &status);
+   /* void handleEmailStatus(const QString &status);*/
 
 private:
     Ui::MainWindow *ui;
     QSqlQueryModel* getEmployeeStats();
     employe Etmp;
      bool validerSaisie();
+     void showErrorMessage(const QString &message);
      conge c;
     arduino a;
     QByteArray data;
