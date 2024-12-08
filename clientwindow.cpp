@@ -17,11 +17,10 @@
 ClientWindow::ClientWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::ClientWindow)
-    , serialPort(nullptr) // Initialise l'objet à nullptr
+    , serialPort(nullptr)
 {
     ui->setupUi(this);
 
-    // Configuration de l'Arduino
     QString portName;
     for (const QSerialPortInfo &info : QSerialPortInfo::availablePorts()) {
         if (info.portName() == "COM4") {
@@ -51,8 +50,6 @@ ClientWindow::ClientWindow(QWidget *parent)
     }
 }
 
-
-
    /* if (serialPort && serialPort->isOpen()) {
         serialPort->close();
     }
@@ -61,7 +58,6 @@ ClientWindow::ClientWindow(QWidget *parent)
 */
 //arduino ...........
 void ClientWindow::on_btn_ajt_clicked() {
-    // Vérification des champs vides
     if (ui->cin->text().isEmpty() || ui->id->text().isEmpty() || ui->num->text().isEmpty() ||
         ui->nom->text().isEmpty() || ui->adresse->text().isEmpty()) {
         QMessageBox::warning(this, "Erreur", "Veuillez remplir tous les champs.");
@@ -69,7 +65,6 @@ void ClientWindow::on_btn_ajt_clicked() {
     }
 
 
-    // Récupération des informations saisies
     int cin = ui->cin->text().toInt();
     int id = ui->id->text().toInt();
     QString nom = ui->nom->text();
@@ -77,7 +72,6 @@ void ClientWindow::on_btn_ajt_clicked() {
     QString adresse = ui->adresse->text();
     QDate date = ui->date->date();
 
-    // Création de l'objet client
     client c(cin, id, nom, num, date, adresse);
     QMessageBox::information(nullptr, "Vérification",
                              "CIN: " + QString::number(cin) +
@@ -86,7 +80,6 @@ void ClientWindow::on_btn_ajt_clicked() {
                              "\nNuméro: " + QString::number(num) +
                              "\nDate: " + date.toString("yyyy-MM-dd") +
                              "\nAdresse: " + adresse);
-    // Ajout du client
     if (c.ajouter()) {
         QMessageBox::information(nullptr, "Succès", "Client ajouté avec succès.");
     } else {
@@ -95,7 +88,6 @@ void ClientWindow::on_btn_ajt_clicked() {
 }
 
 void ClientWindow::on_btn_recherche_clicked() {
-    // Récupérer l'ID saisi par l'utilisateur
     QString idRecherche = ui->idRecherche->text();
 
     if (idRecherche.isEmpty()) {
@@ -103,56 +95,45 @@ void ClientWindow::on_btn_recherche_clicked() {
         return;
     }
 
-    // Créer un objet de type client et appeler la méthode de recherche
     client c;
-    c.rechercherParId(ui->tableRecherche, idRecherche);  // Passer le QTableWidget et l'ID
+    c.rechercherParId(ui->tableRecherche, idRecherche);
     ui->tableRecherche->resizeColumnsToContents();
 
 }
 
-
-
 void ClientWindow::on_btn_pdf_clicked()
 {
-    // Choisir le chemin pour enregistrer le PDF
     QString filePath = QFileDialog::getSaveFileName(this, tr("Save as PDF"), "", tr("PDF Files (*.pdf);;All Files (*)"));
     if (filePath.isEmpty()) {
-        return;  // L'utilisateur a annulé
+        return;
     }
 
-    // Créer l'objet QPdfWriter
     QPdfWriter pdfWriter(filePath);
     pdfWriter.setPageSize(QPageSize(QPageSize::A4));
-    pdfWriter.setResolution(300);  // Définir la résolution
+    pdfWriter.setResolution(300);
 
-    // Configurer QPainter pour écrire dans le PDF
     QPainter painter(&pdfWriter);
     QFont font("Times New Roman", 14);
     painter.setFont(font);
     painter.setPen(Qt::black);
 
-    // Titre
     painter.drawText(100, 100, "Liste des Clients");
 
-    int yOffset = 150;  // Position Y initiale pour les données
-    int i = 1;  // Compteur de clients
+    int yOffset = 150;
+    int i = 1;
 
-    // Exécuter la requête pour récupérer les clients
     QSqlQuery query;
     if (!query.exec("SELECT CIN, ID, NOM, NUM, TRUNC(MONTHS_BETWEEN(SYSDATE, DATE_NAIS) / 12) AS AGE, ADRESSE FROM CLIENT")) {
         QMessageBox::warning(this, tr("Query Error"), tr("Failed to execute query. Error: %1").arg(query.lastError().text()));
         return;
     }
 
-    // Parcourir chaque client et écrire les détails dans un format structuré
     while (query.next()) {
         yOffset += 70;
-        // En-tête pour chaque client
         painter.drawText(50, yOffset, "Client " + QString::number(i) + ":");
-        i++;  // Incrémenter le compteur
+        i++;
         yOffset += 70;
 
-        // Imprimer chaque attribut
         painter.drawText(100, yOffset, "CIN: " + query.value("CIN").toString());
         yOffset += 70;
         painter.drawText(100, yOffset, "ID: " + query.value("ID").toString());
@@ -165,33 +146,27 @@ void ClientWindow::on_btn_pdf_clicked()
         yOffset += 70;
         painter.drawText(100, yOffset, "Adresse: " + query.value("ADRESSE").toString());
 
-        // Ajouter un espace entre chaque client
         yOffset += 140;
 
-        // Vérifier si on dépasse la page actuelle
         if (yOffset > pdfWriter.height() - 100) {
-            pdfWriter.newPage();  // Ajouter une nouvelle page si nécessaire
-            yOffset = 100;  // Réinitialiser la position Y
+            pdfWriter.newPage();
+            yOffset = 100;
         }
     }
 
-    // Finaliser le PDF
     painter.end();
 
-    // Afficher un message de confirmation
     QMessageBox::information(this, tr("PDF Generated"), tr("Les données des clients ont été enregistrées dans un fichier PDF."));
 }
 
 
 void ClientWindow::on_btn_annuler_clicked() {
-    // Réinitialiser tous les champs de saisie
     ui->cin->clear();
     ui->id->clear();
     ui->nom->clear();
     ui->num->clear();
     ui->adresse->clear();
-    ui->date->setDate(QDate::currentDate()); // Optionnel : définir la date actuelle par défaut
-
+    ui->date->setDate(QDate::currentDate());
 }
 
 
@@ -199,38 +174,31 @@ void ClientWindow::on_btn_aff_clicked() {
     client c;
     QSqlQuery query;
 
-    // Requête SQL incluant la date de naissance
     QString queryStr = "SELECT CIN, ID, NOM, NUM, DATE_NAIS, ADRESSE FROM CLIENT";
 
-    // Ajouter le tri en fonction de l'option sélectionnée dans le comboBox
     if (ui->comboBox->currentIndex() == 1) {
-        queryStr += " ORDER BY NOM ASC";  // Tri croissant par NOM
+        queryStr += " ORDER BY NOM ASC";
     } else if (ui->comboBox->currentIndex() == 2) {
-        queryStr += " ORDER BY NOM DESC";  // Tri décroissant par NOM
+        queryStr += " ORDER BY NOM DESC";
     }
 
-    // Préparer et exécuter la requête
     query.prepare(queryStr);
     if (!query.exec()) {
         qDebug() << "Erreur lors de l'exécution de la requête : " << query.lastError().text();
         return;
     }
 
-    // Vider le QTableWidget avant d'ajouter les nouvelles données
-    ui->table_client->setRowCount(0);  // Supprimer les lignes existantes
+    ui->table_client->setRowCount(0);
 
-    // Ajouter les données dans le QTableWidget
     while (query.next()) {
-        int row = ui->table_client->rowCount();  // Obtenir le nombre actuel de lignes
-        ui->table_client->insertRow(row);  // Ajouter une nouvelle ligne
+        int row = ui->table_client->rowCount();
+        ui->table_client->insertRow(row);
 
-        // Remplir les cellules de la ligne avec les données
         ui->table_client->setItem(row, 0, new QTableWidgetItem(query.value("CIN").toString()));
         ui->table_client->setItem(row, 1, new QTableWidgetItem(query.value("ID").toString()));
         ui->table_client->setItem(row, 2, new QTableWidgetItem(query.value("NOM").toString()));
         ui->table_client->setItem(row, 3, new QTableWidgetItem(query.value("NUM").toString()));
 
-        // Formater la date en jj/mm/aaaa
         QDate dateNaiss = query.value("DATE_NAIS").toDate();
         QString formattedDate = dateNaiss.toString("dd/MM/yyyy");
         ui->table_client->setItem(row, 4, new QTableWidgetItem(formattedDate));
@@ -238,36 +206,31 @@ void ClientWindow::on_btn_aff_clicked() {
         ui->table_client->setItem(row, 5, new QTableWidgetItem(query.value("ADRESSE").toString()));
     }
 
-    // Optionnel : ajuster la largeur des colonnes pour correspondre au contenu
     ui->table_client->resizeColumnsToContents();
 }
 
 
 void ClientWindow::on_btn_supprimer_clicked() {
-    // Récupérer l'ID du client sélectionné (par exemple depuis un champ de texte)
-    int id = ui->idclient->text().toInt();  // Par exemple, si l'ID est dans un champ de texte
+    int id = ui->idclient->text().toInt();
 
     QSqlQuery query;
 
-    // Vérifier si l'ID existe dans la base de données
     query.prepare("SELECT COUNT(*) FROM CLIENT WHERE ID = :id");
     query.addBindValue(id);
 
     if (!query.exec()) {
         QMessageBox::critical(nullptr, "Erreur", "Erreur lors de la vérification de l'ID.");
-        return;  // Si une erreur survient, on quitte la fonction
+        return;
     }
 
     query.next();
     int count = query.value(0).toInt();
 
-    // Si l'ID n'existe pas, afficher un message d'erreur
     if (count == 0) {
         QMessageBox::warning(nullptr, "Erreur", "Le client avec cet ID n'existe pas.");
-        return;  // Ne pas continuer si l'ID n'existe pas
+        return;
     }
 
-    // Créer un objet client et appeler la méthode supprimer()
     client c;
     bool success = c.supprimer(id);
 
@@ -281,10 +244,8 @@ void ClientWindow::on_btn_supprimer_clicked() {
 
 
 void ClientWindow::on_statistique_clicked() {
-    // Obtenez les statistiques des adresses depuis l'instance client
     QMap<QString, int> statistiques = clientInstance.statistiquesAdresse();
 
-    // Vérifiez si les statistiques sont vides
     if (statistiques.isEmpty()) {
         QMessageBox::information(this, tr("Aucune donnée"), tr("Aucune donnée statistique trouvée."));
         return;
