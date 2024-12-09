@@ -11,6 +11,7 @@ namespace Ui { class ClientWindow; }
 QT_END_NAMESPACE
 
 class ServiceWindow;
+class ProduitWindow;
 
 class ClientWindow : public QMainWindow
 {
@@ -34,8 +35,11 @@ private slots:
     void on_statistique_clicked();
     void on_pushButton_6_clicked();
 
+    void on_pushButton_7_clicked();
+
 private:
     ServiceWindow *serviceWindow;
+    ProduitWindow *produitWindow;
     Ui::ClientWindow *ui;
     client clientInstance;
     QString serialbuffer;

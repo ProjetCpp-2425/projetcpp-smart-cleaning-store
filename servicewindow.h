@@ -8,6 +8,7 @@ namespace Ui { class ServiceWindow; }
 QT_END_NAMESPACE
 
 class ClientWindow;
+class ProduitWindow;
 
 class ServiceWindow : public QMainWindow
 {
@@ -26,8 +27,11 @@ private slots:
     void on_btn_statut_clicked();
     void on_pushButton_7_clicked();
 
+    void on_pushButton_8_clicked();
+
 private:
     ClientWindow *clientWindow;
+    ProduitWindow *produitWindow;
     Ui::ServiceWindow *ui;
 };
 #endif // SERVICEWINDOW_H

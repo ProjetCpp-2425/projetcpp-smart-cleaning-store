@@ -1,4 +1,4 @@
-QT       += core gui core sql widgets network printsupport serialport charts
+QT       += core gui sql widgets network printsupport serialport charts
 
 CONFIG   += c++11
 
@@ -8,7 +8,11 @@ SOURCES  += main.cpp \
             connection.cpp \
             servicewindow.cpp \
             clientwindow.cpp \
-            client.cpp
+            produitwindow.cpp \
+            client.cpp \
+            produit.cpp \
+            historique.cpp \
+            curvewidget.cpp
 
 HEADERS  += \
     arduino.h \
@@ -16,14 +20,20 @@ HEADERS  += \
     connection.h \
     servicewindow.h \
     clientwindow.h \
-    client.h
+    produitwindow.h \
+    client.h \
+    produit.h \
+    historique.h \
+    curvewidget.h
 
 FORMS    += \
     servicewindow.ui \
-    clientwindow.ui
+    clientwindow.ui \
+    produitwindow.ui
 
 RESOURCES += \
-    Resource.qrc
+    Resource.qrc \
+    img.qrc
 
 
 

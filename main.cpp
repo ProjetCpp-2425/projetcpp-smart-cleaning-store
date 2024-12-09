@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+//
     Connection c;
     bool test = c.createconnection();
     if (!test) {
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
         nullptr, QObject::tr("Data is open"),
         QObject::tr("Connecté avec succès.\nCliquez sur OK pour continuer."),
         QMessageBox::Ok);
-
+    //
     ServiceWindow w;
     w.show();
     return a.exec();
