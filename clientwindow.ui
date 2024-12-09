@@ -162,6 +162,63 @@ QPushButton:hover {
       <string>Service</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_7">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>380</y>
+       <width>191</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:#7EB6D4;
+font: 14pt &quot;Tempus Sans ITC&quot;;
+border-radius: 25px; 
+border: 1.5px solid #29ABE2; 
+color:#000000;
+QPushButton: {
+                     font-size: 14px;
+                      transition: all 0.3s ease;
+                      }
+QPushButton:hover {
+                      font-size: 18px;
+                      }</string>
+     </property>
+     <property name="text">
+      <string>Employe</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_8">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>450</y>
+       <width>191</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:#99CC99;
+font: 14pt &quot;Tempus Sans ITC&quot;;
+border-radius: 25px; 
+border: 1.5px solid #29ABE2; 
+color:#000000;
+QPushButton: {
+                     font-size: 14px;
+                      transition: all 0.3s ease;
+                      }
+QPushButton:hover {
+                      font-size: 18px;
+                      }</string>
+     </property>
+     <property name="text">
+      <string>Equippement</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="enabled">
@@ -178,39 +235,12 @@ QPushButton:hover {
     <property name="palette">
      <palette>
       <active>
-       <colorrole role="WindowText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
           <red>202</red>
           <green>238</green>
           <blue>254</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
          </color>
         </brush>
        </colorrole>
@@ -243,39 +273,12 @@ QPushButton:hover {
        </colorrole>
       </active>
       <inactive>
-       <colorrole role="WindowText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
           <red>202</red>
           <green>238</green>
           <blue>254</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
          </color>
         </brush>
        </colorrole>
@@ -308,39 +311,12 @@ QPushButton:hover {
        </colorrole>
       </inactive>
       <disabled>
-       <colorrole role="WindowText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
           <red>202</red>
           <green>238</green>
           <blue>254</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="Text">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
-         </color>
-        </brush>
-       </colorrole>
-       <colorrole role="ButtonText">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>0</red>
-          <green>0</green>
-          <blue>0</blue>
          </color>
         </brush>
        </colorrole>
@@ -390,7 +366,7 @@ color:#000000</string>
      <set>Qt::ImhNone</set>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -976,7 +952,7 @@ background-color:#FFFFFF</string>
      <x>0</x>
      <y>0</y>
      <width>1179</width>
-     <height>17</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

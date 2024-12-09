@@ -1,7 +1,9 @@
 #include "clientwindow.h"
 #include "client.h"
+#include "equipement.h"
 #include "./ui_clientwindow.h"
 #include "./ui_servicewindow.h"
+#include "mainwindow.h"
 #include "servicewindow.h"
 #include <QMessageBox>
 #include <QSqlQuery>
@@ -448,6 +450,22 @@ void ClientWindow::on_pushButton_6_clicked()
 {
     serviceWindow = new ServiceWindow(); // Create a new instance of ServiceWindow
     serviceWindow->show();               // Show the ServiceWindow
+    this->close();
+}
+
+
+void ClientWindow::on_pushButton_7_clicked()
+{
+    mainwindow = new MainWindow();
+    mainwindow->show();
+    this->close();
+}
+
+
+void ClientWindow::on_pushButton_8_clicked()
+{
+    equippement = new equipement();
+    equippement->show();
     this->close();
 }
 
