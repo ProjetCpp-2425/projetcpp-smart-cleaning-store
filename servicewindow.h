@@ -9,6 +9,8 @@ QT_END_NAMESPACE
 
 class ClientWindow;
 class ProduitWindow;
+class equipement;
+class EmployeWindow;
 
 class ServiceWindow : public QMainWindow
 {
@@ -29,9 +31,15 @@ private slots:
 
     void on_pushButton_8_clicked();
 
+    void on_pushButton_9_clicked();
+
+    void on_pushButton_10_clicked();
+
 private:
     ClientWindow *clientWindow;
     ProduitWindow *produitWindow;
+    EmployeWindow *employeWindow;
+    equipement *Equipement;
     Ui::ServiceWindow *ui;
 };
 #endif // SERVICEWINDOW_H

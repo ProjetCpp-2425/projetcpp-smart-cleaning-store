@@ -201,6 +201,66 @@ QPushButton:hover {
       <string>Produit</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_9">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>450</y>
+       <width>191</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:#99CC99;
+font: 14pt &quot;Tempus Sans ITC&quot;;
+border-radius: 25px; 
+border: 1.5px solid #29ABE2; 
+color:#000000;
+QPushButton: {
+                     font-size: 14px;
+                      transition: all 0.3s ease;
+                      }
+QPushButton:hover {
+                      font-size: 18px;
+                      }</string>
+     </property>
+     <property name="text">
+      <string>Equipement</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_10">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>520</y>
+       <width>191</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:#99CC99;
+font: 14pt &quot;Tempus Sans ITC&quot;;
+border-radius: 25px; 
+border: 1.5px solid #29ABE2; 
+color:#000000;
+QPushButton: {
+                     font-size: 14px;
+                      transition: all 0.3s ease;
+                      }
+QPushButton:hover {
+                      font-size: 18px;
+                      }</string>
+     </property>
+     <property name="text">
+      <string>Employe</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="enabled">
@@ -1233,7 +1293,7 @@ border-color:#000000</string>
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

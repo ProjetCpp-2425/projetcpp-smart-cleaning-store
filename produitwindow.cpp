@@ -1,10 +1,14 @@
 #include "produitwindow.h"
 #include "servicewindow.h"
 #include "clientwindow.h"
+#include "employewindow.h"
+#include "equipement.h"
 #include "produit.h"
 #include "./ui_produitwindow.h"
 #include "./ui_servicewindow.h"
 #include "./ui_clientwindow.h"
+#include "./ui_employewindow.h"
+#include "./ui_equipement.h"
 #include <QMessageBox>
 #include "connection.h"
 #include <QPdfWriter>
@@ -479,3 +483,19 @@ void ProduitWindow::on_pushButton_8_clicked()
     this->close();
 
 }
+
+void ProduitWindow::on_pushButton_12_clicked()
+{
+    Equipement = new equipement();
+    Equipement->show();
+    this->close();
+}
+
+
+void ProduitWindow::on_pushButton_13_clicked()
+{
+    employeWindow = new EmployeWindow(); // Create a new instance of ServiceWindow
+    employeWindow->show();               // Show the ServiceWindow
+    this->close();
+}
+

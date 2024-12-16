@@ -1,4 +1,4 @@
-#include "servicewindow.h"
+#include "clientwindow.h"
 #include "connection.h"
 #include <QMessageBox>
 #include <QInputDialog>
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         QObject::tr("Connecté avec succès.\nCliquez sur OK pour continuer."),
         QMessageBox::Ok);
     //
-    ServiceWindow w;
+    ClientWindow w;
     w.show();
     return a.exec();
 }
